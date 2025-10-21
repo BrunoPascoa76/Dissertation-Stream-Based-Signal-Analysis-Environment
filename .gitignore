@@ -1,0 +1,4 @@
+.env
+kafka/*
+influxdb/*
+grafana/*
