@@ -1,0 +1,50 @@
+import json
+import os
+from time import time_ns
+from influxdb_client import InfluxDBClient, Point, WriteApi
+from kafka import KafkaConsumer
+
+TOPIC="keyboard-events"
+ORGANIZATION="dissertation"
+BUCKET="sensors"
+
+def connect_db():
+    client=InfluxDBClient(
+        url="influxdb:8086",
+        token=os.environ["INFLUXDB_ADMIN_TOKEN"],
+        org="dissertation"
+    )
+    write_api=client.write_api(write_options=None)
+    return client,write_api
+
+def process_event(event,write_api:WriteApi):
+    key_class=event.get("event_type")
+    timestamp_ns=event.get("timestamp_ns")
+    
+    if key_class=="WHITESPACE":
+        point=Point("word").tag("sensor","keyboard").time(timestamp_ns,write_precision="ns") #create a new point
+        write_api.write(bucket=BUCKET,record=point) #record it
+    elif key_class=="DELETE":
+        point=Point("delete").tag("sensor","keyboard").time(timestamp_ns,write_precision="ns")
+        write_api.write(bucket=BUCKET,record=point)
+
+if __name__=="__main__":
+    consumer=KafkaConsumer(
+        topic=TOPIC,
+        bootstrap_servers=['kafka:9092'],  
+        value_deserializer=lambda v: json.loads(v.decode("utf-8")),
+        auto_offset_reset="latest",
+        enable_auto_commit=True
+    )
+    
+    influx_client,write_api=connect_db()
+    
+    try:
+        for message in consumer: #for each message...
+            event=message.value #get the event
+            process_event(event,write_api) #and process it into the database
+    except KeyboardInterrupt:
+        print("Shutting down...")
+    finally: #close everything nicely
+        influx_client.close()
+        consumer.close()

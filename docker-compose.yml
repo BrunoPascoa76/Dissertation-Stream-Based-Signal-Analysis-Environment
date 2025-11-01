@@ -21,6 +21,11 @@ services:
       KAFKA_LOG_DIRS: /kafka/data
     volumes:
       - kafka-data:/kafka/data
+    healthcheck:
+      test: ["CMD", "bash", "-c", "echo > /dev/tcp/localhost/9092"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
 
   grafana:
@@ -47,8 +52,28 @@ services:
       DOCKER_INFLUXDB_INIT_PASSWORD: ${INFLUXDB_ADMIN_PASSWORD}
       DOCKER_INFLUXDB_INIT_ORG: dissertation
       DOCKER_INFLUXDB_INIT_BUCKET: sensors
+      DOCKER_INFLUXDB_ADMIN_TOKEN: ${INFLUXDB_ADMIN_TOKEN}
     volumes:
       - influxdb-data:/var/lib/influxdb2
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8086/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  wpm:
+    image: python:latest
+    container_name: wpm_consumer
+    environment:
+      - INFLUXDB_ADMIN_TOKEN: ${INFLUXDB_ADMIN_TOKEN}
+    depends_on:
+      kafka:
+        condition: service_healthy
+      influxdb:
+        condition: service_healthy
+    volumes:
+      - ./consumer:/app
+    command: sh -c "cd /app && pip install -r requirements.txt && python3 wpm.py"
 
 volumes:
   grafana-data:
