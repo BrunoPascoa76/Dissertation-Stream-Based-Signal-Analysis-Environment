@@ -1,5 +1,3 @@
-version: "2.40"
-
 services:
   kafka:
     image: apache/kafka:latest
@@ -23,9 +21,9 @@ services:
       - kafka-data:/kafka/data
     healthcheck:
       test: ["CMD", "bash", "-c", "echo > /dev/tcp/localhost/9092"]
-      interval: 10s
+      interval: 5s
       timeout: 5s
-      retries: 5
+      retries: 10
 
 
   grafana:
@@ -65,14 +63,14 @@ services:
     image: python:latest
     container_name: wpm_consumer
     environment:
-      - INFLUXDB_ADMIN_TOKEN: ${INFLUXDB_ADMIN_TOKEN}
+      INFLUXDB_ADMIN_TOKEN: ${INFLUXDB_ADMIN_TOKEN}
     depends_on:
       kafka:
         condition: service_healthy
       influxdb:
         condition: service_healthy
     volumes:
-      - ./consumer:/app
+      - ./consumers:/app:Z
     command: sh -c "cd /app && pip install -r requirements.txt && python3 wpm.py"
 
 volumes:

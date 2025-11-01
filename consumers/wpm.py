@@ -14,7 +14,7 @@ def connect_db():
         token=os.environ["INFLUXDB_ADMIN_TOKEN"],
         org="dissertation"
     )
-    write_api=client.write_api(write_options=None)
+    write_api=client.write_api()
     return client,write_api
 
 def process_event(event,write_api:WriteApi):
@@ -30,7 +30,7 @@ def process_event(event,write_api:WriteApi):
 
 if __name__=="__main__":
     consumer=KafkaConsumer(
-        topic=TOPIC,
+        TOPIC,
         bootstrap_servers=['kafka:9092'],  
         value_deserializer=lambda v: json.loads(v.decode("utf-8")),
         auto_offset_reset="latest",
