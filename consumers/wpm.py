@@ -1,4 +1,5 @@
 import json
+import logging
 import os
 from time import time_ns
 from influxdb_client import InfluxDBClient, Point, WriteApi
@@ -7,6 +8,13 @@ from kafka import KafkaConsumer
 TOPIC="keyboard-events"
 ORGANIZATION="dissertation"
 BUCKET="sensors"
+
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s [%(levelname)s] %(message)s",
+    datefmt="%H:%M:%S"
+)
+logger = logging.getLogger("consumer_wpm")
 
 def connect_db():
     client=InfluxDBClient(
@@ -23,9 +31,11 @@ def process_event(event,write_api:WriteApi):
     
     if key_class=="WHITESPACE":
         point=Point("word").tag("sensor","keyboard").time(timestamp_ns,write_precision="ns") #create a new point
+        logger.info(f"sent word at {timestamp_ns}")
         write_api.write(bucket=BUCKET,record=point) #record it
     elif key_class=="DELETE":
         point=Point("delete").tag("sensor","keyboard").time(timestamp_ns,write_precision="ns")
+        logger.info(f"sent delete at {timestamp_ns}")
         write_api.write(bucket=BUCKET,record=point)
 
 if __name__=="__main__":
@@ -42,6 +52,7 @@ if __name__=="__main__":
     try:
         for message in consumer: #for each message...
             event=message.value #get the event
+            logger.info(f"got new message: {event}")
             process_event(event,write_api) #and process it into the database
     except KeyboardInterrupt:
         print("Shutting down...")

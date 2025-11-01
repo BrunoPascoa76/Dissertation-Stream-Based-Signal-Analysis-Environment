@@ -1,6 +1,14 @@
+import logging
 from pynput import keyboard
 from kafka import KafkaProducer
 import json,time
+
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s [%(levelname)s] %(message)s",
+    datefmt="%H:%M:%S"
+)
+logger = logging.getLogger("producer")
 
 producer = KafkaProducer(
     bootstrap_servers=['localhost:9092'],  
@@ -30,9 +38,12 @@ def on_press(key):
 
     try:
         record_metadata = future.get(timeout=10)  # blocks until ack from broker
-        print(f"Message sent to topic {record_metadata.topic}, partition {record_metadata.partition}, offset {record_metadata.offset}")
+        logger.info(f"Message sent to topic {record_metadata.topic}, partition {record_metadata.partition}, offset {record_metadata.offset}")
     except Exception as e:
-        print(f"Failed to send message: {e}")
+        logger.exception(f"Failed to send message: {e}")
 
 with keyboard.Listener(on_press=on_press) as listener:
-    listener.join()
+    try:
+        listener.join()
+    except KeyboardInterrupt as e:
+        logger.info("shutting down...")
