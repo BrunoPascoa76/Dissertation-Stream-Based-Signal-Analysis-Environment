@@ -72,6 +72,19 @@ services:
     volumes:
       - ./consumers:/app:Z
     command: sh -c "cd /app && pip install -r requirements.txt && python3 wpm.py"
+  smartwatch:
+    image: python:latest
+    container_name: smartwatch_consumer
+    environment:
+      INFLUXDB_ADMIN_TOKEN: ${INFLUXDB_ADMIN_TOKEN}
+    depends_on:
+      kafka:
+        condition: service_healthy
+      influxdb:
+        condition: service_healthy
+    volumes:
+      - ./consumers:/app:Z
+    command: sh -c "cd /app && pip install -r requirements.txt && python3 smartwatch.py"
 
 volumes:
   grafana-data:
