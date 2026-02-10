@@ -37,6 +37,7 @@ httpcore==1.0.9
 httpx==0.28.1
 humanize==4.13.0
 idna==3.10
+iniconfig==2.3.0
 initial-setup==0.3.101
 inkex==1.4.0
 iso639==0.1.4
@@ -63,6 +64,7 @@ perf==0.1
 pexpect==4.9.0
 pid==3.0.4
 pillow==12.1.0
+pluggy==1.6.0
 ply==3.11
 productmd==1.50
 proselint==0.16.0
@@ -93,6 +95,7 @@ PySide6==6.10.2
 PySide6_Addons==6.10.2
 PySide6_Essentials==6.10.2
 PySocks==1.7.1
+pytest==9.0.2
 python-augeas==1.2.0
 python-dateutil==2.9.0.post0
 python-linux-procfs==0.7.3

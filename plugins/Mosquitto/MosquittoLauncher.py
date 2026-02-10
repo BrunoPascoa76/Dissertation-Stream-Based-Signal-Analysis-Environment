@@ -25,6 +25,7 @@ class MosquittoManager:
         """
         
         self.config_path=str(Path(config_path).resolve())
+        print(self.config_path)
         self.container_name=container_name
         self.port=port
         self.image=image
@@ -47,6 +48,12 @@ class MosquittoManager:
         """
         self.logger.info(f"Starting Mosquitto container '{self.container_name}'...")
         
+        try:
+            image = self.client.images.pull("eclipse-mosquitto:latest")
+            self.logger.debug(f"Pulled image {image.tags}")
+        except docker.errors.APIError as e:
+            self.logger.error(f"Failed to pull image: {e}")
+        
         try: #try to start an existing container
             self.container=self.client.containers.get(self.container_name)
             self.logger.debug(f"Found existing container '{self.container_name}' with status {self.container.status}")
@@ -64,7 +71,7 @@ class MosquittoManager:
                 volumes={
                     self.config_path: {
                         "bind": "/mosquitto/config/mosquitto.conf",
-                        "mode": "ro",
+                        "mode": "ro,Z",
                     }
                 },
                 restart_policy={"Name": "unless-stopped"},
