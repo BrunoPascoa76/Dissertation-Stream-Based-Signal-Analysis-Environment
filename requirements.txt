@@ -2,7 +2,12 @@ certifi==2026.1.4
 charset-normalizer==3.4.4
 docker==7.1.0
 idna==3.11
+importlib==1.0.4
+iniconfig==2.3.0
+packaging==26.0
 paho-mqtt==2.1.0
+pluggy==1.6.0
+Pygments==2.19.2
+pytest==9.0.2
 requests==2.32.5
 urllib3==2.6.3
-Yapsy==1.12.2

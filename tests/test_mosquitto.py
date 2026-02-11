@@ -1,9 +1,11 @@
 import time
-from plugins.Mosquitto.MosquittoLauncher import MosquittoManager
+
+from pluggy import PluginManager
+from plugins.core.MosquittoLauncher import MosquittoManager
 import pytest
 from pathlib import Path
 
-CONFIG_PATH = Path("plugins/Mosquitto/mosquitto.conf").resolve()
+CONFIG_PATH = Path("conf/mosquitto.conf").resolve()
 
 
 @pytest.fixture

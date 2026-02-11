@@ -5,15 +5,16 @@ import time
 import docker
 from docker.errors import NotFound, DockerException, APIError
 
+from utils.BasePlugin import BasePlugin
 from utils.setupLogger import setup_logger
 
 
-class MosquittoManager:
+class MosquittoManager(BasePlugin):
     """
     Uses Docker to manage a local instance of Mosquitto MQTT.
     """
     
-    def __init__(self, config_path:str="./mosquitto.conf",container_name:str="mosquitto-broker",port:int=1883,image="eclipse-mosquitto:latest"):
+    def __init__(self, config_path:str="./conf/mosquitto.conf",container_name:str="mosquitto-broker",port:int=1883,image="eclipse-mosquitto:latest"):
         """
         :param config_path: Path to mosquitto.conf
         :type config_path: str
@@ -23,7 +24,6 @@ class MosquittoManager:
         :type port: int
         :param image: Docker image to use
         """
-        
         self.config_path=str(Path(config_path).resolve())
         print(self.config_path)
         self.container_name=container_name
@@ -38,6 +38,13 @@ class MosquittoManager:
             self.logger.error("Docker not available")
             raise RuntimeError("Docker not available") from e
         self.container=None
+        
+    def status(self):
+        """returns the current status of the container"""
+        if self.container is None:
+            return "stopped"
+        else:
+            return self.container.status
         
     def start(self,wait_for_ready=True,timeout=10)->None:
         """
