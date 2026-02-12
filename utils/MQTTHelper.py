@@ -9,7 +9,7 @@ from utils.setupLogger import setup_logger
 
 class MQTTHelper:
     """Helper class that sends data to Mosquitto"""
-    def __init__(self,host: str = "localhost",port: int = 1883,client_id: Optional[str] = None,keepalive: int = 60):
+    def __init__(self,host: str = "localhost",port: int = 1883,client_id: Optional[str] = None,keepalive: int = 60,client: Optional[mqtt.Client]=None):
         """
         :param host:
         :type host: str
@@ -24,7 +24,7 @@ class MQTTHelper:
         self.port=port
         self.keepalive=keepalive
         
-        self._client=mqtt.Client(client_id=client_id)
+        self._client = client or mqtt.Client(client_id=client_id) #dependency injection for unit testing purposes (does not affect normal use)
         self._lock=threading.Lock()
         self._connected= False
         
@@ -59,16 +59,11 @@ class MQTTHelper:
 
     def disconnect(self):
         """Disconnect cleanly from the broker."""
-        self._client.loop_stop()
-        self._client.disconnect()
+        if self._connected:
+            self._client.loop_stop()
+            self._client.disconnect()
 
-    def publish(
-        self,
-        topic: str,
-        payload: Dict[str, Any],
-        qos: int = 0,
-        retain: bool = False,
-    ):
+    def publish(self,topic: str,payload: Dict[str, Any],qos: int = 0,retain: bool = False):
         """
         Publish a JSON payload to a topic.
         """
@@ -86,5 +81,4 @@ class MQTTHelper:
             )
 
             if result.rc != mqtt.MQTT_ERR_SUCCESS:
-                self.logger.error(f"Failed to publish message to {topic}")
-            
+                self.logger.error(f"Failed to publish message to {topic}. RC={result.rc}")
