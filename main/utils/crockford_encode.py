@@ -1,6 +1,6 @@
 import socket
 import struct
-from base32_crockford import encode #crockford is a variant of base32 that removes often mistyped letters from the dictionary to avoid typos during manual writing
+from base32_crockford import encode,decode #crockford is a variant of base32 that removes often mistyped letters from the dictionary to avoid typos during manual writing
 
 def get_local_ip()->str:
     """
@@ -32,7 +32,19 @@ def address_encode(port:int)->str:
     value = int.from_bytes(data, byteorder="big")
 
     # Encode with checksum
-    code = encode(value, checksum=True)
+    code = encode(value, checksum=False)
     
     return "-".join([code[i:i+4] for i in range(0, len(code), 4)]) #groups separated by "-" to be more human readable
 
+
+def address_decode(code: str):
+    cleaned = code.replace("-", "")
+    value = decode(cleaned, checksum=True)  # integer
+    data_bytes = value.to_bytes(7, byteorder="big")  # convert back to 7 bytes
+    ip_bytes = data_bytes[0:4]
+    port_bytes = data_bytes[4:6]
+    version = data_bytes[6]
+
+    ip_str = socket.inet_ntoa(ip_bytes)
+    port = struct.unpack("!H", port_bytes)[0]
+    return ip_str, port, version
