@@ -1,17 +1,23 @@
-/* While this template provides a good starting point for using Wear Compose, you can always
- * take a look at https://github.com/android/wear-os-samples/tree/main/ComposeStarter to find the
- * most up to date changes to the libraries and their usages.
- */
-
 package com.example.dissertationcompanionapp.presentation
 
+import android.Manifest
+import android.content.pm.PackageManager
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
+import androidx.core.content.ContextCompat
+import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavHostController
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
+import androidx.navigation.compose.rememberNavController
 import androidx.wear.compose.foundation.lazy.TransformingLazyColumn
 import androidx.wear.compose.foundation.lazy.rememberTransformingLazyColumnState
 import androidx.wear.compose.material3.AppScaffold
@@ -28,72 +34,66 @@ import androidx.wear.compose.material3.lazy.transformedHeight
 import androidx.wear.compose.ui.tooling.preview.WearPreviewDevices
 import androidx.wear.compose.ui.tooling.preview.WearPreviewFontScales
 import com.example.dissertationcompanionapp.R
+import com.example.dissertationcompanionapp.presentation.data.AddressRepository
 import com.example.dissertationcompanionapp.presentation.theme.DissertationCompanionAppTheme
+import com.example.dissertationcompanionapp.presentation.ui.HRVScreen
+import com.example.dissertationcompanionapp.presentation.ui.PairingCodeScreen
+import com.example.dissertationcompanionapp.presentation.viewmodels.MainViewModel
+import com.example.dissertationcompanionapp.presentation.viewmodels.decodePairingCode
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContent {
-            WearApp("Android")
-        }
-    }
-}
 
-@Composable
-fun WearApp(greetingName: String) {
-    DissertationCompanionAppTheme {
-        AppScaffold {
-            val listState = rememberTransformingLazyColumnState()
-            val transformationSpec = rememberTransformationSpec()
-            ScreenScaffold(
-                scrollState = listState,
-                edgeButton = {
-                    EdgeButton(
-                        onClick = { /*TODO*/ },
-                        colors =
-                            ButtonDefaults.buttonColors(
-                                containerColor = MaterialTheme.colorScheme.secondaryContainer,
-                                contentColor = MaterialTheme.colorScheme.onSecondaryContainer,
-                            ),
-                    ) {
-                        Text("More")
-                    }
-                },
-            ) { contentPadding -> // ScreenScaffold provides default padding; adjust as needed
-                TransformingLazyColumn(contentPadding = contentPadding, state = listState) {
-                    item {
-                        ListHeader(
-                            modifier =
-                                Modifier.fillMaxWidth().transformedHeight(this, transformationSpec),
-                            transformation = SurfaceTransformation(transformationSpec),
-                        ) {
-                            Text(text = stringResource(R.string.hello_world, greetingName))
-                        }
-                    }
-                    item {
-                        Button(onClick = { /*TODO*/ }, modifier = Modifier.fillMaxWidth()) {
-                            Text("Button A")
-                        }
-                    }
-                    item {
-                        Button(onClick = { /*TODO*/ }, modifier = Modifier.fillMaxWidth()) {
-                            Text("Button B")
-                        }
-                    }
-                    item {
-                        Button(onClick = { /*TODO*/ }, modifier = Modifier.fillMaxWidth()) {
-                            Text("Button C")
-                        }
-                    }
-                }
+        val requestPermissionLauncher = registerForActivityResult(
+            ActivityResultContracts.RequestPermission()
+        ) { isGranted: Boolean ->
+            if (!isGranted) {
+                finish()
+            }
+        }
+
+        // Check and request
+        when {
+            ContextCompat.checkSelfPermission(
+                this, Manifest.permission.BODY_SENSORS
+            ) == PackageManager.PERMISSION_GRANTED -> {
+                // Already have it, carry on
+            }
+            else -> {
+                requestPermissionLauncher.launch(Manifest.permission.BODY_SENSORS)
+            }
+        }
+
+        setContent {
+            DissertationCompanionAppTheme {
+                MainApp()
             }
         }
     }
 }
 
-@WearPreviewDevices
-@WearPreviewFontScales
 @Composable
-fun DefaultPreview() {
-    WearApp("Preview Android")
+fun MainApp() {
+    val navController = rememberNavController()
+    val context = LocalContext.current
+
+    val addressRepository = AddressRepository(context)
+    val mainViewModel = remember {
+        MainViewModel(context, addressRepository)
+    }
+
+    WearAppNav(navController, mainViewModel)
+}
+
+@Composable
+fun WearAppNav(navController: NavHostController, viewModel: MainViewModel) {
+    NavHost(navController, startDestination = "pairing_screen") {
+        composable("pairing_screen") {
+            PairingCodeScreen(navController, viewModel)
+        }
+        composable("hrv_screen") {
+            HRVScreen(viewModel)
+        }
+    }
 }
