@@ -29,15 +29,26 @@ import androidx.compose.ui.unit.dp
 import com.example.dissertationcompanionapp.presentation.viewmodels.MainViewModel
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.MonitorHeart
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.res.painterResource
 import com.example.dissertationcompanionapp.R
+import com.example.dissertationcompanionapp.presentation.viewmodels.MQTTViewModel
 
 @Composable
-fun HRVScreen(viewModel: MainViewModel) {
+fun HRVScreen(viewModel: MainViewModel,mqttViewModel: MQTTViewModel) {
     val hrv by viewModel.hrv.collectAsState()
     val bpm by viewModel.bpm.collectAsState()
+
+
+    //publish hrv when it changes
+    LaunchedEffect(hrv) {
+        hrv?.let { value ->
+            val timestamp = System.currentTimeMillis()
+            mqttViewModel.publishHrvData(value, timestamp)
+        }
+    }
 
     Column(
         modifier = Modifier

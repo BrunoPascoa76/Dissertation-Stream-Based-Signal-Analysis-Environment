@@ -1,6 +1,7 @@
 package com.example.dissertationcompanionapp.presentation
 
 import android.Manifest
+import android.app.Application
 import android.content.pm.PackageManager
 import android.os.Bundle
 import androidx.activity.ComponentActivity
@@ -37,7 +38,9 @@ import com.example.dissertationcompanionapp.R
 import com.example.dissertationcompanionapp.presentation.data.AddressRepository
 import com.example.dissertationcompanionapp.presentation.theme.DissertationCompanionAppTheme
 import com.example.dissertationcompanionapp.presentation.ui.HRVScreen
+import com.example.dissertationcompanionapp.presentation.ui.HRVWrapper
 import com.example.dissertationcompanionapp.presentation.ui.PairingCodeScreen
+import com.example.dissertationcompanionapp.presentation.viewmodels.MQTTViewModel
 import com.example.dissertationcompanionapp.presentation.viewmodels.MainViewModel
 import com.example.dissertationcompanionapp.presentation.viewmodels.decodePairingCode
 
@@ -67,14 +70,14 @@ class MainActivity : ComponentActivity() {
 
         setContent {
             DissertationCompanionAppTheme {
-                MainApp()
+                MainApp(application)
             }
         }
     }
 }
 
 @Composable
-fun MainApp() {
+fun MainApp(application: Application) {
     val navController = rememberNavController()
     val context = LocalContext.current
 
@@ -82,18 +85,21 @@ fun MainApp() {
     val mainViewModel = remember {
         MainViewModel(context, addressRepository)
     }
+    val mqttViewModel = remember {
+        MQTTViewModel(application,addressRepository)
+    }
 
-    WearAppNav(navController, mainViewModel)
+    WearAppNav(navController, mainViewModel, mqttViewModel)
 }
 
 @Composable
-fun WearAppNav(navController: NavHostController, viewModel: MainViewModel) {
+fun WearAppNav(navController: NavHostController, viewModel: MainViewModel, mqttViewModel: MQTTViewModel) {
     NavHost(navController, startDestination = "pairing_screen") {
         composable("pairing_screen") {
             PairingCodeScreen(navController, viewModel)
         }
         composable("hrv_screen") {
-            HRVScreen(viewModel)
+            HRVWrapper(viewModel, mqttViewModel)
         }
     }
 }

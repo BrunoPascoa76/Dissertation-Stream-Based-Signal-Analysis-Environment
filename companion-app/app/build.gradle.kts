@@ -56,6 +56,8 @@ dependencies {
     implementation(libs.material3)
     implementation(libs.navigation.compose)
     implementation(libs.material.icons.extended)
+    implementation(libs.org.eclipse.paho.client.mqttv3)
+    implementation(libs.android.org.eclipse.paho.android.service)
     androidTestImplementation(platform(libs.compose.bom))
     androidTestImplementation(libs.ui.test.junit4)
     debugImplementation(libs.ui.tooling)

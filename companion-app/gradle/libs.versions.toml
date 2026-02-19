@@ -2,7 +2,10 @@
 agp = "9.0.1"
 base32Jvm = "2.6.0"
 composeNavigation = "1.5.6"
+localbroadcastmanager = "1.1.0"
 materialIconsExtended = "1.7.8"
+orgEclipsePahoAndroidService = "1.1.1"
+orgEclipsePahoClientMqttv3 = "1.2.5"
 playServicesWearable = "18.0.0"
 kotlin = "2.0.21"
 composeBom = "2024.09.00"
@@ -16,9 +19,13 @@ material3 = "1.4.0"
 navigationCompose = "2.9.7"
 
 [libraries]
+android-org-eclipse-paho-android-service = { module = "org.eclipse.paho.android:org.eclipse.paho.android.service" }
 base32-jvm = { module = "io.matthewnelson.encoding:base32-jvm", version.ref = "base32Jvm" }
 compose-navigation = { module = "androidx.wear.compose:compose-navigation", version.ref = "composeNavigation" }
+localbroadcastmanager = { module = "androidx.localbroadcastmanager:localbroadcastmanager", version.ref = "localbroadcastmanager" }
 material-icons-extended = { module = "androidx.compose.material:material-icons-extended", version.ref = "materialIconsExtended" }
+org-eclipse-paho-android-service = { module = "org.eclipse.paho:org.eclipse.paho.android.service", version.ref = "orgEclipsePahoAndroidService" }
+org-eclipse-paho-client-mqttv3 = { module = "org.eclipse.paho:org.eclipse.paho.client.mqttv3", version.ref = "orgEclipsePahoClientMqttv3" }
 play-services-wearable = { group = "com.google.android.gms", name = "play-services-wearable", version.ref = "playServicesWearable" }
 compose-bom = { group = "androidx.compose", name = "compose-bom", version.ref = "composeBom" }
 ui = { group = "androidx.compose.ui", name = "ui" }
