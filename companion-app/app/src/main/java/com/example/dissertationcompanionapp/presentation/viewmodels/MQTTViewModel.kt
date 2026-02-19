@@ -1,22 +1,16 @@
 package com.example.dissertationcompanionapp.presentation.viewmodels
 
-import android.app.Application
-import android.content.Context
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import com.example.dissertationcompanionapp.presentation.data.AddressRepository
+import com.hivemq.client.mqtt.mqtt5.Mqtt5AsyncClient
+import com.hivemq.client.mqtt.mqtt5.Mqtt5Client
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
-import org.eclipse.paho.client.mqttv3.IMqttActionListener
-import org.eclipse.paho.client.mqttv3.IMqttDeliveryToken
-import org.eclipse.paho.client.mqttv3.IMqttToken
-import org.eclipse.paho.client.mqttv3.MqttCallback
-import org.eclipse.paho.client.mqttv3.MqttClient
-import org.eclipse.paho.client.mqttv3.MqttConnectOptions
-import org.eclipse.paho.client.mqttv3.MqttMessage
 import org.json.JSONObject
+import java.util.UUID
 
 class MQTTViewModel(
-    private val application: Application,
     private val addressRepository: AddressRepository
 ): ViewModel() {
     private val _isConnected = MutableStateFlow(false)
@@ -25,56 +19,46 @@ class MQTTViewModel(
     private val _sessionStarted = MutableStateFlow(false)
     val sessionStarted: StateFlow<Boolean> = _sessionStarted
 
-    private var mqttClient: MqttAndroidClient? = null
+    private var mqttClient: Mqtt5AsyncClient? = null
 
     fun connect() {
         val address = addressRepository.getAddress()
-        val serverUri = "tcp://$address"
 
-        val clientId = MqttClient.generateClientId()
+        // HiveMQ handles the 'tcp://' part internally, just provide host and port
+        // Assuming address is "IP:PORT" or just "IP"
+        val parts = address?.split(":")
+        val host = parts?.get(0) ?: "localhost" //not needed, just because it forces me to
+        val port = parts?.getOrNull(1)?.toInt() ?: 1883
 
-        mqttClient = MqttAndroidClient(
-            application.applicationContext,
-            serverUri,
-            clientId
-        )
 
-        val options = MqttConnectOptions().apply {
-            isAutomaticReconnect = true
-            isCleanSession = false
-        }
+        mqttClient = Mqtt5Client.builder()
+            .identifier(UUID.randomUUID().toString())
+            .serverHost(host)
+            .serverPort(port)
+            .automaticReconnectWithDefaultConfig()
+            .buildAsync()
 
-        mqttClient?.setCallback(object : MqttCallback {
-
-            override fun connectionLost(cause: Throwable?) {
-                _isConnected.value = false
-            }
-
-            override fun messageArrived(topic: String?, message: MqttMessage?) {
-                if (topic == "commands/hrv") {
-                    handleCommand(message?.toString())
+        mqttClient?.connectWith()
+            ?.cleanStart(false)
+            ?.send()
+            ?.whenComplete { _, throwable ->
+                if (throwable == null) {
+                    _isConnected.value = true
+                    // We subscribe immediately after connecting
+                    subscribeToCommands()
                 }
-            }
-
-            override fun deliveryComplete(token: IMqttDeliveryToken?) {}
-        })
-
-        mqttClient?.connect(options, null, object : IMqttActionListener {
-
-            override fun onSuccess(asyncActionToken: IMqttToken?) {
-                _isConnected.value = true
-                mqttClient?.subscribe("commands/hrv", 1)
-            }
-
-            override fun onFailure(
-                asyncActionToken: IMqttToken?,
-                exception: Throwable?
-            ) {
-                _isConnected.value = false
-            }
-        })
+        }
     }
 
+    private fun subscribeToCommands() {
+        mqttClient?.subscribeWith()
+            ?.topicFilter("commands/hrv")
+            ?.callback { publish ->
+                val message = publish.payloadAsBytes.decodeToString()
+                handleCommand(message)
+            }
+            ?.send()
+    }
     private fun handleCommand(message: String?) {
         when (message?.lowercase()) {
             "start" -> _sessionStarted.value = true
@@ -93,7 +77,7 @@ class MQTTViewModel(
         disconnect()
     }
 
-    fun publishHrvData(hrv: Double, timestamp:Long){
+    fun publishHrvData(hrv: Double, timestamp: Long) {
         if (!_isConnected.value || !_sessionStarted.value) return
 
         val json = JSONObject().apply {
@@ -101,10 +85,10 @@ class MQTTViewModel(
             put("hrv", hrv)
         }
 
-        val message = MqttMessage(json.toString().toByteArray()).apply {
-            qos = 1
-        }
-
-        mqttClient?.publish("/sensors/hrv", message)
+        mqttClient?.publishWith()
+            ?.topic("/sensors/hrv")
+            ?.payload(json.toString().toByteArray())
+            ?.qos(com.hivemq.client.mqtt.datatypes.MqttQos.AT_LEAST_ONCE)
+            ?.send()
     }
 }

@@ -13,6 +13,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.example.dissertationcompanionapp.presentation.viewmodels.MQTTViewModel
 import com.example.dissertationcompanionapp.presentation.viewmodels.MainViewModel
@@ -42,6 +43,7 @@ fun WaitingScreen(isConnected: Boolean, sessionStarted: Boolean) {
         CircularProgressIndicator()
         Spacer(modifier = Modifier.padding(16.dp))
         Text(
+            textAlign = TextAlign.Center,
             text = when {
                 !isConnected -> "Connecting to MQTT..."
                 !sessionStarted -> "Waiting for session to start..."

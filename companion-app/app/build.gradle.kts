@@ -11,6 +11,13 @@ android {
         }
     }
 
+    packaging {
+        resources {
+            excludes += "/META-INF/INDEX.LIST"
+            excludes += "/META-INF/io.netty.versions.properties"
+        }
+    }
+
     defaultConfig {
         applicationId = "com.example.dissertationcompanionapp"
         minSdk = 30
@@ -56,8 +63,7 @@ dependencies {
     implementation(libs.material3)
     implementation(libs.navigation.compose)
     implementation(libs.material.icons.extended)
-    implementation(libs.org.eclipse.paho.client.mqttv3)
-    implementation(libs.android.org.eclipse.paho.android.service)
+    implementation(libs.hivemq.mqtt.client)
     androidTestImplementation(platform(libs.compose.bom))
     androidTestImplementation(libs.ui.test.junit4)
     debugImplementation(libs.ui.tooling)

@@ -2,6 +2,7 @@
 agp = "9.0.1"
 base32Jvm = "2.6.0"
 composeNavigation = "1.5.6"
+hivemqMqttClient = "1.3.12"
 localbroadcastmanager = "1.1.0"
 materialIconsExtended = "1.7.8"
 orgEclipsePahoAndroidService = "1.1.1"
@@ -22,6 +23,7 @@ navigationCompose = "2.9.7"
 android-org-eclipse-paho-android-service = { module = "org.eclipse.paho.android:org.eclipse.paho.android.service" }
 base32-jvm = { module = "io.matthewnelson.encoding:base32-jvm", version.ref = "base32Jvm" }
 compose-navigation = { module = "androidx.wear.compose:compose-navigation", version.ref = "composeNavigation" }
+hivemq-mqtt-client = { module = "com.hivemq:hivemq-mqtt-client", version.ref = "hivemqMqttClient" }
 localbroadcastmanager = { module = "androidx.localbroadcastmanager:localbroadcastmanager", version.ref = "localbroadcastmanager" }
 material-icons-extended = { module = "androidx.compose.material:material-icons-extended", version.ref = "materialIconsExtended" }
 org-eclipse-paho-android-service = { module = "org.eclipse.paho:org.eclipse.paho.android.service", version.ref = "orgEclipsePahoAndroidService" }

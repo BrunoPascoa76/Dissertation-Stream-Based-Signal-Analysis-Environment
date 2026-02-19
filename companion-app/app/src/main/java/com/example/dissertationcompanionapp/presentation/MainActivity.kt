@@ -70,14 +70,14 @@ class MainActivity : ComponentActivity() {
 
         setContent {
             DissertationCompanionAppTheme {
-                MainApp(application)
+                MainApp()
             }
         }
     }
 }
 
 @Composable
-fun MainApp(application: Application) {
+fun MainApp() {
     val navController = rememberNavController()
     val context = LocalContext.current
 
@@ -86,7 +86,7 @@ fun MainApp(application: Application) {
         MainViewModel(context, addressRepository)
     }
     val mqttViewModel = remember {
-        MQTTViewModel(application,addressRepository)
+        MQTTViewModel(addressRepository)
     }
 
     WearAppNav(navController, mainViewModel, mqttViewModel)
