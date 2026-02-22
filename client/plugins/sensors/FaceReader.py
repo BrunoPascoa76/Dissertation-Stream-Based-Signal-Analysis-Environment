@@ -11,11 +11,12 @@ from mediapipe.tasks.python import vision
 
 
 class FaceReader(BasePlugin):
-    def __init__(self,publisher,model_path:str="./conf/face_landmarker.task"):   
+    def __init__(self,publisher,model_path:str="./conf/face_landmarker.task",target_fps=5):   
         super().__init__(publisher,"FaceReader")
         
         self.model_path = model_path
         self.thread = None
+        self.target_fps=target_fps
 
         # MediaPipe FaceLandmarker setup
         base_options = python.BaseOptions(model_asset_path=self.model_path)
@@ -50,13 +51,22 @@ class FaceReader(BasePlugin):
         
     def _run(self):
         """Internal loop to capture frames and detect landmarks."""        
+        frame_count = 0
         self.cap = cv2.VideoCapture(0)
+        
+        capture_fps = self.cap.get(cv2.CAP_PROP_FPS) or 30
+        skip_every = int(capture_fps / self.target_fps)
+        
         while self.running and self.cap.isOpened():
             ret, frame = self.cap.read()
             if not ret:
                 continue
 
             timestamp = int(time.time() * 1000)
+            
+            frame_count += 1
+            if frame_count % skip_every != 0:
+                continue
             
             # Convert to RGB for MediaPipe
             mp_image = mp.Image(
