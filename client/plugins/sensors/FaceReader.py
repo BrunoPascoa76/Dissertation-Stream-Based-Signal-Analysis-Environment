@@ -11,7 +11,7 @@ from mediapipe.tasks.python import vision
 
 
 class FaceReader(BasePlugin):
-    def __init__(self,publisher,model_path:str="./conf/face_landmarker.task",target_fps=5):   
+    def __init__(self,publisher:MQTTHelper,model_path:str="./conf/face_landmarker.task",target_fps=5):   
         super().__init__(publisher,"FaceReader")
         
         self.model_path = model_path
