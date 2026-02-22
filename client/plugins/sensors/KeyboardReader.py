@@ -40,12 +40,6 @@ class KeyboardReader(BasePlugin):
         }
         self.logger.info(f"received key of category {category}")
         self._publisher.publish("sensors/keyboard",payload)
-        
-    def status(self):
-        if self._running:
-            return "running"
-        else:
-            return "stopped"
     
 def categorize_key(key: Union[keyboard.KeyCode, keyboard.Key]) -> str:
     """

@@ -11,11 +11,10 @@ from mediapipe.tasks.python import vision
 
 
 class FaceReader(BasePlugin):
-    def __init__(self,model_path:str="./conf/face_landmarker.task",publisher:Optional[MQTTHelper]=None):
-        self._publisher=publisher or MQTTHelper()
+    def __init__(self,publisher,model_path:str="./conf/face_landmarker.task"):   
+        super().__init__(publisher,"FaceReader")
         
         self.model_path = model_path
-        self.running = False
         self.thread = None
 
         # MediaPipe FaceLandmarker setup
