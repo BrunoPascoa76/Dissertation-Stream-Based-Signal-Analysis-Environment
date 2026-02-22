@@ -9,29 +9,31 @@ from utils.setupLogger import setup_logger
 
 class MQTTHelper:
     """Helper class that sends data to Mosquitto"""
-    def __init__(self,host: str = "localhost",port: int = 1883,client_id: Optional[str] = None,keepalive: int = 60,client: Optional[mqtt.Client]=None):
+    def __init__(self,uuid:str="None", host: str = "localhost",port: int = 1883,keepalive: int = 60,client: Optional[mqtt.Client]=None):
         """
+        :param uuid: client uuid
+        :type uuid: str
         :param host:
         :type host: str
         :param port:
         :type port: int
-        :param client_id:
-        :type client_id: Optional[str]
         :param keepalive:
         :type keepalive: int
         """
+        self.uuid=uuid
         self.host=host
         self.port=port
         self.keepalive=keepalive
         
-        self._client = client or mqtt.Client(client_id=client_id) #dependency injection for unit testing purposes (does not affect normal use)
+        self._client = client or mqtt.Client(client_id=uuid) #dependency injection for unit testing purposes (does not affect normal use)
         self._lock=threading.Lock()
         self._connected= False
         
         self._client.on_connect = self._on_connect
         self._client.on_disconnect = self._on_disconnect
-        self.connect()
         self.logger=setup_logger("MQTTHelper")
+        self.connect()
+        
         
     def _on_connect(self,client,userdata,flags,rc):
         if rc==0:
@@ -64,14 +66,15 @@ class MQTTHelper:
             self._client.loop_stop()
             self._client.disconnect()
 
-    def publish(self,topic: str,payload: Dict[str, Any],qos: int = 0,retain: bool = True):
+    def publish(self,topic: str,payload: Dict[str, Any],qos: int = 1,retain: bool = True):
         """
-        Publish a JSON payload to a topic.
+        Inject UUID and sends the message
         """
         if not self._connected:
             raise RuntimeError("MQTT client is not connected.")
 
-        message = json.dumps(payload)
+        payload_with_uuid = {"uuid": self.uuid, **payload} #the uuid is injected here to avoid all N plugins all having to know what the uuid is (especially useful with external devices)
+        message = json.dumps(payload_with_uuid)
 
         with self._lock:
             result = self._client.publish(
