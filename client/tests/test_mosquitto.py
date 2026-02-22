@@ -1,7 +1,7 @@
 import time
 
 from pluggy import PluginManager
-from plugins.core.MosquittoLauncher import MosquittoManager
+from client.plugins.core.MosquittoManager import MosquittoManager
 import pytest
 from pathlib import Path
 
