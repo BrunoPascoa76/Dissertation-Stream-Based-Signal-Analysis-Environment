@@ -66,15 +66,18 @@ class MQTTHelper:
             self._client.loop_stop()
             self._client.disconnect()
 
-    def publish(self,topic: str,payload: Dict[str, Any],qos: int = 1,retain: bool = True):
+    def publish(self,topic: str,payload: Dict[str, Any],qos: int = 1,retain: bool = True, inject_uuid=True):
         """
         Inject UUID and sends the message
         """
         if not self._connected:
             raise RuntimeError("MQTT client is not connected.")
 
-        payload_with_uuid = {"uuid": self.uuid, **payload} #the uuid is injected here to avoid all N plugins all having to know what the uuid is (especially useful with external devices)
-        message = json.dumps(payload_with_uuid)
+        if inject_uuid:
+            injected_payload = {"uuid": self.uuid, **payload} #the uuid is injected here to avoid all N plugins all having to know what the uuid is (especially useful with external devices)
+        else:
+            injected_payload=payload #for commands, where we actually don't want uuid
+        message = json.dumps(injected_payload)
 
         with self._lock:
             result = self._client.publish(

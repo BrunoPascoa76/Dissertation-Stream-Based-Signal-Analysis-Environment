@@ -11,12 +11,12 @@ class HRVReader(BasePlugin):
             return
         
         
-        self._publisher.publish("commands/hrv","start")
+        self._publisher.publish("commands/hrv","start",inject_uuid=False)
         self.running=True
     
     def stop(self):
         if not self.running:
             return
         
-        self._publisher.publish("commands/hrv","stop")
+        self._publisher.publish("commands/hrv","stop",inject_uuid=False)
         self.running=False
