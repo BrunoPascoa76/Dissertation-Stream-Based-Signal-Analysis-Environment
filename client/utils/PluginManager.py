@@ -3,6 +3,7 @@ import pathlib
 from typing import Type
 
 from utils.BasePlugin import BasePlugin
+from utils.setupLogger import setup_logger
 
 
 class PluginManager:
@@ -22,6 +23,8 @@ class PluginManager:
         self.core_plugins = self._load_plugins_from_folder(self.CORE_FOLDER)
         self.sensor_plugins = self._load_plugins_from_folder(self.SENSORS_FOLDER)
         
+        self.logger=setup_logger("PluginManager")
+        
     def _load_plugins_from_folder(self, folder:pathlib.Path) -> list[BasePlugin]:
         """
         loads all plugins from the given folder. Ignores any classes not implementing BasePlugin
@@ -31,7 +34,7 @@ class PluginManager:
         :return: a list of plugins
         :rtype: list[BasePlugin]
         """
-        plugins = []
+        plugins = {}
         for file in folder.glob("*.py"): #get all files
             if file.name.startswith("_"): #(except private ones like __init__.py)
                 continue
@@ -52,7 +55,7 @@ class PluginManager:
             #instanciate those who pass
             if plugin_class:
                 instance = plugin_class()
-                plugins.append(instance)
+                plugins[type(instance).__name__] = instance 
         return plugins
     
     def list_core_plugins(self) -> list[str]:
@@ -62,7 +65,7 @@ class PluginManager:
         :return: a list of core plugin names
         :rtype: list[str]
         """
-        return [type(p).__name__ for p in self.core_plugins]
+        return list(self.core_plugins.keys())
 
     def list_sensor_plugins(self) -> list[str]:
         """
@@ -71,33 +74,52 @@ class PluginManager:
         :return: a list of sensor plugin names
         :rtype: list[str]
         """
-        return [type(p).__name__ for p in self.sensor_plugins]
+        return list(self.sensor_plugins.keys())
     
-    def start_core_plugins(self):
+    def start_all_core_plugins(self):
         """
         Start all core plugins
         """
-        for plugin in self.core_plugins:
+        for plugin in self.core_plugins.values():
             plugin.start()
 
-    def start_sensor_plugins(self):
+    def start_all_sensor_plugins(self):
         """
         Start all sensor plugins
         """
-        for plugin in self.sensor_plugins:
+        for plugin in self.sensor_plugins.values():
             plugin.start()
 
     # ---------- Stop ----------
-    def stop_core_plugins(self):
+    def stop_all_core_plugins(self):
         """
         Stop all core plugins
         """
-        for plugin in self.core_plugins:
+        for plugin in self.core_plugins.values():
             plugin.stop()
 
-    def stop_sensor_plugins(self):
+    def stop_all_sensor_plugins(self):
         """
         Stop all sensor plugins
         """
-        for plugin in self.sensor_plugins:
+        for plugin in self.sensor_plugins.values():
             plugin.stop()
+            
+    def start_sensor_plugins(self,plugin_names:list[str]):
+        """
+        Start all plugins in the given list of names
+        :param plugin_names: the names of all plugins to be started
+        :type plugin_names: list[str]
+        """
+        for name in plugin_names:
+            self.start_sensor_plugin(name)
+                
+    def start_sensor_plugin(self,name:str):
+        """
+        Start plugin with the given name
+        :param name: the name of the plugin
+        :type name: str
+        """
+        if name in self.sensor_plugins:
+            self.sensor_plugins[name].start()
+            

@@ -50,7 +50,7 @@ class FaceReader(BasePlugin):
             return "stopped"
         
     def _run(self):
-        """Internal loop to capture frames and detect landmarks."""
+        """Internal loop to capture frames and detect landmarks."""        
         self.cap = cv2.VideoCapture(0)
         while self.running and self.cap.isOpened():
             ret, frame = self.cap.read()

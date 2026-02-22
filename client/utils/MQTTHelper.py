@@ -30,6 +30,7 @@ class MQTTHelper:
         
         self._client.on_connect = self._on_connect
         self._client.on_disconnect = self._on_disconnect
+        self.connect()
         self.logger=setup_logger("MQTTHelper")
         
     def _on_connect(self,client,userdata,flags,rc):
@@ -63,7 +64,7 @@ class MQTTHelper:
             self._client.loop_stop()
             self._client.disconnect()
 
-    def publish(self,topic: str,payload: Dict[str, Any],qos: int = 0,retain: bool = False):
+    def publish(self,topic: str,payload: Dict[str, Any],qos: int = 0,retain: bool = True):
         """
         Publish a JSON payload to a topic.
         """
