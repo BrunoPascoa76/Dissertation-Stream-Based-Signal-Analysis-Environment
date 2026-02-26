@@ -15,60 +15,73 @@ services:
       timeout: 5s
       retries: 5
 
+  zookeeper:
+    image: zookeeper:3.4.9
+    restart: unless-stopped
+    hostname: zookeeper
+    container_name: zookeeper
+    ports:
+      - "2181:2181"
+    environment:
+        ZOO_MY_ID: 1
+        ZOO_PORT: 2181
+        ZOO_SERVERS: server.1=zookeeper:2888:3888
+    volumes:
+      - ./zookeeper/data:/data:Z
+      - ./zookeeper/datalog:/datalog:Z
+
   kafka:
-    image: confluentinc/cp-kafka:latest
+    image: confluentinc/cp-kafka:5.1.0
+    hostname: kafka
     container_name: kafka
     ports:
       - "9092:9092"
-      - "29092:29092"
     environment:
-      KAFKA_PROCESS_ROLES: broker,controller
-      KAFKA_NODE_ID: 1
-      KAFKA_CONTROLLER_QUORUM_VOTERS: 1@kafka:9093
-      KAFKA_LISTENERS: PLAINTEXT://0.0.0.0:9092,PLAINTEXT_HOST://0.0.0.0:29092,CONTROLLER://0.0.0.0:9093
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
       KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092,PLAINTEXT_HOST://localhost:29092
-      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT,CONTROLLER:PLAINTEXT
-      KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
-      KAFKA_CONTROLLER_LISTENER_NAMES: CONTROLLER
-      KAFKA_NUM_PARTITIONS: 1
-      KAFKA_AUTO_CREATE_TOPICS_ENABLE: "true"
-    healthcheck:
-      test: ["CMD", "kafka-broker-api-versions", "--bootstrap-server", "kafka:9092"]
-      interval: 5s
-      retries: 20
-
+      KAFKA_ZOOKEEPER_CONNECT: "zookeeper:2181"
+      KAFKA_BROKER_ID: 1
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+    volumes:
+      - ./kafka/data:/var/lib/kafka/data:Z
+    depends_on:
+      - zookeeper
 
   kafka-connect:
-    build: ./connect
+    image: confluentinc/cp-kafka-connect:5.1.0
+    hostname: kafka-connect
     container_name: kafka-connect
-    depends_on:
-      kafka:
-        condition: service_healthy
-      mosquitto-central:
-        condition: service_healthy
     ports:
       - "8083:8083"
     environment:
-      CONNECT_BOOTSTRAP_SERVERS: kafka:9092
+      CONNECT_BOOTSTRAP_SERVERS: "kafka:9092"
+      CONNECT_REST_ADVERTISED_HOST_NAME: connect
       CONNECT_REST_PORT: 8083
-      CONNECT_GROUP_ID: connect-group
-      CONNECT_CONFIG_STORAGE_TOPIC: _connect-configs
-      CONNECT_OFFSET_STORAGE_TOPIC: _connect-offsets
-      CONNECT_STATUS_STORAGE_TOPIC: _connect-status
-      CONNECT_CONFIG_STORAGE_REPLICATION_FACTOR: 1
-      CONNECT_OFFSET_STORAGE_REPLICATION_FACTOR: 1
-      CONNECT_STATUS_STORAGE_REPLICATION_FACTOR: 1
+      CONNECT_GROUP_ID: compose-connect-group
+      CONNECT_CONFIG_STORAGE_TOPIC: docker-connect-configs
+      CONNECT_OFFSET_STORAGE_TOPIC: docker-connect-offsets
+      CONNECT_STATUS_STORAGE_TOPIC: docker-connect-status
       CONNECT_KEY_CONVERTER: org.apache.kafka.connect.json.JsonConverter
       CONNECT_VALUE_CONVERTER: org.apache.kafka.connect.json.JsonConverter
-      CONNECT_VALUE_CONVERTER_SCHEMAS_ENABLE: "false"
-      CONNECT_PLUGIN_PATH: /usr/share/java
-      CONNECT_REST_ADVERTISED_HOST_NAME: kafka-connect
-
+      CONNECT_INTERNAL_KEY_CONVERTER: "org.apache.kafka.connect.json.JsonConverter"
+      CONNECT_INTERNAL_VALUE_CONVERTER: "org.apache.kafka.connect.json.JsonConverter"
+      CONNECT_CONFIG_STORAGE_REPLICATION_FACTOR: "1"
+      CONNECT_OFFSET_STORAGE_REPLICATION_FACTOR: "1"
+      CONNECT_STATUS_STORAGE_REPLICATION_FACTOR: "1"
+      CONNECT_PLUGIN_PATH: '/usr/share/java,/etc/kafka-connect/jars'
+      CONNECT_CONFLUENT_TOPIC_REPLICATION_FACTOR: 1
+    volumes:
+      - /tmp/custom/jars:/etc/kafka-connect/jars:Z
+    depends_on:
+      - zookeeper
+      - kafka
+      - mosquitto-central
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8083/connectors"]
-      interval: 5s
+      test: ["CMD", "curl", "-f", "http://localhost:8083/"]
+      interval: 10s
       timeout: 5s
-      retries: 20
+      retries: 5
+    entrypoint: ["/bin/sh", "./conf/start-connect.sh"]
 
   connector-init:
     image: curlimages/curl:latest
@@ -84,17 +97,16 @@ services:
       for f in /connectors/*.json; do
         name=$(basename "$$f" .json)
         echo "Creating connector $$name..."
-        curl -s -X POST -H "Content-Type: application/json" --data @"$$f" http://kafka-connect:8083/connectors || true
+        curl -X POST -H "Content-Type: application/json" --data @"$$f" http://kafka-connect:8083/connectors || true
       done;
       echo "Done.";
       '
 
   kafdrop: 
-    image: obsidiandynamics/kafdrop
+    image: obsidiandynamics/kafdrop:3.27.0
     container_name: kafdrop
     depends_on:
-      kafka:
-        condition: service_healthy
+      - kafka
     ports:
       - "9000:9000"
     environment:

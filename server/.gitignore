@@ -1,0 +1,4 @@
+kafka/*
+mosquitto-central/*
+zookeeper/*
+connect/*
