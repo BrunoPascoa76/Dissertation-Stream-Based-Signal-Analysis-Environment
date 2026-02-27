@@ -6,7 +6,6 @@
         "mqtt.server.uri": "tcp://mosquitto-central:1883",
         "mqtt.topics": "sensors/#",
         "mqtt.qos": "1",
-        "kafka.topic": "${mqtt.topic}",
         "value.converter": "org.apache.kafka.connect.converters.ByteArrayConverter",
         "confluent.topic.bootstrap.servers": "kafka:9092",
         "confluent.topic.replication.factor": 1
