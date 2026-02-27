@@ -48,7 +48,7 @@ services:
       - zookeeper
 
   kafka-connect:
-    image: confluentinc/cp-kafka-connect:5.1.0
+    build: ./connect
     hostname: kafka-connect
     container_name: kafka-connect
     ports:
@@ -68,10 +68,8 @@ services:
       CONNECT_CONFIG_STORAGE_REPLICATION_FACTOR: "1"
       CONNECT_OFFSET_STORAGE_REPLICATION_FACTOR: "1"
       CONNECT_STATUS_STORAGE_REPLICATION_FACTOR: "1"
-      CONNECT_PLUGIN_PATH: '/usr/share/java,/etc/kafka-connect/jars'
+      CONNECT_PLUGIN_PATH: '/usr/share/java,/usr/share/confluent-hub-components'
       CONNECT_CONFLUENT_TOPIC_REPLICATION_FACTOR: 1
-    volumes:
-      - /tmp/custom/jars:/etc/kafka-connect/jars:Z
     depends_on:
       - zookeeper
       - kafka
@@ -81,7 +79,6 @@ services:
       interval: 10s
       timeout: 5s
       retries: 5
-    entrypoint: ["/bin/sh", "./conf/start-connect.sh"]
 
   connector-init:
     image: curlimages/curl:latest
