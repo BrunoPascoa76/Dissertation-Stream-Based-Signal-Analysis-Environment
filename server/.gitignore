@@ -1,5 +1,4 @@
 kafka/*
 mosquitto-central/*
 zookeeper/*
-connect/*
 influxdb/*
