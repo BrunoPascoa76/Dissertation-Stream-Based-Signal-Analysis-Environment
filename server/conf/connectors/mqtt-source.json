@@ -2,7 +2,7 @@
     "name": "mqtt-source",
     "config": {
         "connector.class": "io.confluent.connect.mqtt.MqttSourceConnector",
-        "tasks.max": 1,
+        "tasks.max": 10,
         "mqtt.server.uri": "tcp://mosquitto-central:1883",
         "mqtt.topics": "sensors/#",
         "mqtt.qos": "1",
