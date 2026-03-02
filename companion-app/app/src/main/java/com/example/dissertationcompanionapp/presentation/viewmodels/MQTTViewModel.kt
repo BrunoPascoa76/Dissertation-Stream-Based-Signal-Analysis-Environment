@@ -82,7 +82,7 @@ class MQTTViewModel(
 
         val json = JSONObject().apply {
             put("timestamp", timestamp)
-            put("hrv", hrv)
+            put("value", hrv)
         }
 
         mqttClient?.publishWith()

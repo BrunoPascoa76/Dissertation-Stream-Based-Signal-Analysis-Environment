@@ -81,7 +81,7 @@ class FaceReader(BasePlugin):
                 landmarks_list = [(lm.x, lm.y, lm.z) for lm in result.face_landmarks[0]]
                 
                 payload={
-                    "features":landmarks_list,
+                    "value":landmarks_list,
                     "timestamp": timestamp
                 }
 
