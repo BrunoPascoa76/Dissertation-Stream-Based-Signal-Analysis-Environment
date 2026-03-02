@@ -42,10 +42,15 @@ services:
       KAFKA_ZOOKEEPER_CONNECT: "zookeeper:2181"
       KAFKA_BROKER_ID: 1
       KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_LOG_RETENTION_MS: 7200000   # if the influxdb is down for more than 2 hours, then data loss is the least of our worries
     volumes:
       - ./kafka/data:/var/lib/kafka/data:Z
     depends_on:
       - zookeeper
+    healthcheck:
+      test: ["CMD-SHELL", "nc -z localhost 9092 || exit 1"]
+      interval: 10s
+      retries: 5
 
   kafka-connect:
     build: ./connect
@@ -104,7 +109,7 @@ services:
       kafka-connect:
         condition: service_healthy
       influxdb:
-          condition:service_healthy
+          condition: service_healthy
     volumes:
       - ./conf/connectors:/connectors:Z
     entrypoint: >
@@ -117,6 +122,47 @@ services:
       done;
       echo "Done.";
       '
+
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: prometheus
+    user: root
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./conf:/etc/prometheus:Z
+    command:
+      - "--config.file=/etc/prometheus/prometheus.yml"
+
+  grafana:
+    image: grafana/grafana:latest
+    container_name: grafana
+    volumes:
+    - ./grafana/dashboards:/var/lib/grafana/dashboards:Z
+    - ./grafana/provisioning:/etc/grafana/provisioning:Z
+    ports:
+      - "3000:3000"
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD=admin
+    depends_on:
+      - prometheus
+
+  kafka-exporter:
+    image: danielqsj/kafka-exporter:latest
+    container_name: kafka-exporter
+    environment:
+      - KAFKA_BROKERS=kafka:9092
+    depends_on:
+      kafka:
+        condition: service_healthy
+
+  mosquitto-exporter:
+    image: sapcc/mosquitto-exporter:latest
+    container_name: mosquitto-exporter
+    environment:
+      - MQTT_SERVER=mosquitto:1883
+    depends_on:
+      - mosquitto-central
 
   kafdrop: 
     image: obsidiandynamics/kafdrop:3.27.0

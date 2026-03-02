@@ -1,0 +1,145 @@
+{
+  "id": null,
+  "uid": "dissertation-monitor",
+  "title": "Dissertation Pipeline Monitoring",
+  "timezone": "browser",
+  "schemaVersion": 36,
+  "version": 1,
+  "refresh": "5s",
+  "panels": [
+    {
+      "type": "row",
+      "title": "Kafka Overview",
+      "gridPos": {"h":1,"w":24,"x":0,"y":0},
+      "collapsed": false
+    },
+    {
+      "type": "graph",
+      "title": "Kafka Messages In / Out per Second",
+      "targets": [
+        {
+          "expr": "kafka_server_BrokerTopicMetrics_MessagesInPerSec",
+          "legendFormat": "In"
+        },
+        {
+          "expr": "kafka_server_BrokerTopicMetrics_MessagesOutPerSec",
+          "legendFormat": "Out"
+        }
+      ],
+      "gridPos": {"h":8,"w":12,"x":0,"y":1}
+    },
+    {
+      "type": "graph",
+      "title": "Kafka Consumer Lag",
+      "targets": [
+        {
+          "expr": "kafka_consumergroup_lag",
+          "legendFormat": "{{group}}/{{topic}}"
+        }
+      ],
+      "gridPos": {"h":8,"w":12,"x":12,"y":1}
+    },
+    {
+      "type": "graph",
+      "title": "Under-Replicated Partitions",
+      "targets": [
+        {
+          "expr": "kafka_server_ReplicaManager_UnderReplicatedPartitions"
+        }
+      ],
+      "gridPos": {"h":6,"w":12,"x":0,"y":9}
+    },
+    {
+      "type": "row",
+      "title": "InfluxDB Metrics",
+      "gridPos": {"h":1,"w":24,"x":0,"y":15},
+      "collapsed": false
+    },
+    {
+      "type": "graph",
+      "title": "InfluxDB Points Written / Second",
+      "targets": [
+        {
+          "expr": "influxdb_points_written",
+          "legendFormat": "Points/sec"
+        }
+      ],
+      "gridPos": {"h":6,"w":12,"x":0,"y":16}
+    },
+    {
+      "type": "graph",
+      "title": "InfluxDB Write Failures",
+      "targets": [
+        {
+          "expr": "influxdb_write_failures",
+          "legendFormat": "Failed writes"
+        }
+      ],
+      "gridPos": {"h":6,"w":12,"x":12,"y":16}
+    },
+    {
+      "type": "graph",
+      "title": "InfluxDB Memory Usage",
+      "targets": [
+        {
+          "expr": "influxdb_memory_bytes",
+          "legendFormat": "Memory"
+        }
+      ],
+      "gridPos": {"h":6,"w":12,"x":0,"y":22}
+    },
+    {
+      "type": "graph",
+      "title": "InfluxDB Disk Usage",
+      "targets": [
+        {
+          "expr": "influxdb_disk_bytes",
+          "legendFormat": "Disk"
+        }
+      ],
+      "gridPos": {"h":6,"w":12,"x":12,"y":22}
+    },
+    {
+      "type": "row",
+      "title": "Mosquitto / MQTT Metrics",
+      "gridPos": {"h":1,"w":24,"x":0,"y":28},
+      "collapsed": false
+    },
+    {
+      "type": "graph",
+      "title": "MQTT Messages Received / Sent",
+      "targets": [
+        {
+          "expr": "mosquitto_messages_received_total",
+          "legendFormat": "Received"
+        },
+        {
+          "expr": "mosquitto_messages_sent_total",
+          "legendFormat": "Sent"
+        }
+      ],
+      "gridPos": {"h":6,"w":12,"x":0,"y":29}
+    },
+    {
+      "type": "graph",
+      "title": "MQTT Active Clients",
+      "targets": [
+        {
+          "expr": "mosquitto_connected_clients",
+          "legendFormat": "Clients"
+        }
+      ],
+      "gridPos": {"h":6,"w":12,"x":12,"y":29}
+    }
+  ],
+  "templating": {
+    "list": []
+  },
+  "annotations": {
+    "list": []
+  },
+  "time": {
+    "from": "now-5m",
+    "to": "now"
+  }
+}
