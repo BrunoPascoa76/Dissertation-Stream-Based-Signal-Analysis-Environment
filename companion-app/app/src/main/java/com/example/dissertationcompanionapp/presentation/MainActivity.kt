@@ -36,6 +36,7 @@ import androidx.wear.compose.ui.tooling.preview.WearPreviewDevices
 import androidx.wear.compose.ui.tooling.preview.WearPreviewFontScales
 import com.example.dissertationcompanionapp.R
 import com.example.dissertationcompanionapp.presentation.data.AddressRepository
+import com.example.dissertationcompanionapp.presentation.data.UUIDRepository
 import com.example.dissertationcompanionapp.presentation.theme.DissertationCompanionAppTheme
 import com.example.dissertationcompanionapp.presentation.ui.HRVScreen
 import com.example.dissertationcompanionapp.presentation.ui.HRVWrapper
@@ -82,11 +83,12 @@ fun MainApp() {
     val context = LocalContext.current
 
     val addressRepository = AddressRepository(context)
+    val uuidRepository= UUIDRepository(context)
     val mainViewModel = remember {
         MainViewModel(context, addressRepository)
     }
     val mqttViewModel = remember {
-        MQTTViewModel(addressRepository)
+        MQTTViewModel(addressRepository, uuidRepository)
     }
 
     WearAppNav(navController, mainViewModel, mqttViewModel)

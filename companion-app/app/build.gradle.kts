@@ -64,6 +64,7 @@ dependencies {
     implementation(libs.navigation.compose)
     implementation(libs.material.icons.extended)
     implementation(libs.hivemq.mqtt.client)
+    implementation(libs.kotlinx.serialization.json)
     androidTestImplementation(platform(libs.compose.bom))
     androidTestImplementation(libs.ui.test.junit4)
     debugImplementation(libs.ui.tooling)
