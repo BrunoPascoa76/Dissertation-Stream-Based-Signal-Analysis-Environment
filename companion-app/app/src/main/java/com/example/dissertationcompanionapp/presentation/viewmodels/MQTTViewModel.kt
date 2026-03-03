@@ -1,6 +1,5 @@
 package com.example.dissertationcompanionapp.presentation.viewmodels
 
-import android.util.Log
 import androidx.lifecycle.ViewModel
 import com.example.dissertationcompanionapp.presentation.data.AddressRepository
 import com.example.dissertationcompanionapp.presentation.data.UUIDRepository
@@ -13,12 +12,11 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.serialization.json.Json
 import org.json.JSONObject
 import java.util.UUID
-import kotlinx.serialization.decodeFromString
 
 class MQTTViewModel(
     private val addressRepository: AddressRepository,
     private val uuidRepository: UUIDRepository
-): ViewModel() {
+) : ViewModel() {
     private val _isConnected = MutableStateFlow(false)
     val isConnected: StateFlow<Boolean> = _isConnected
 
@@ -62,7 +60,6 @@ class MQTTViewModel(
                     subscribeToCommands()
                 }
             }
-        }
     }
 
     private fun subscribeToCommands() {
@@ -74,6 +71,7 @@ class MQTTViewModel(
             }
             ?.send()
     }
+
     private fun handleCommand(message: String?) {
         if (message.isNullOrBlank()) return
 
@@ -115,10 +113,8 @@ class MQTTViewModel(
     fun publishHrvData(hrv: Double, timestamp: Long) {
         if (!_isConnected.value || !_sessionStarted.value) return
 
-        val uuid = uuidRepository.getUUID() ?: return
-
         val json = JSONObject().apply {
-            put("uuid",uuid)
+            put("uuid", uuidRepository.getUUID()?:return)
             put("timestamp", timestamp)
             put("value", hrv)
         }
