@@ -1,0 +1,31 @@
+{
+  "name": "influxdb-sink",
+  "config": {
+    "connector.class": "io.confluent.influxdb.InfluxDBSinkConnector",
+    "tasks.max": "5",
+    "topics": "mqtt",
+
+    "key.converter": "org.apache.kafka.connect.json.JsonConverter",
+    "key.converter.schemas.enable": "false",
+    "value.converter": "org.apache.kafka.connect.json.JsonConverter",
+    "value.converter.schemas.enable": "false",
+    
+    "transforms.KeyToHeader.type": "org.apache.kafka.connect.transforms.HeaderFrom$Key",
+    "transforms.KeyToHeader.fields": "payload",
+    "transforms.KeyToHeader.headers": "tmp_measurement",
+    "transforms.KeyToHeader.operation": "move",
+
+    "transforms.HeaderToValue.type": "org.apache.kafka.connect.transforms.InsertField$Value",
+    "transforms.HeaderToValue.header.field": "tmp_measurement",
+    "transforms.HeaderToValue.destination.field": "measurement_name",
+
+    "influxdb.url": "http://influxdb:8086",
+    "influxdb.database": "sensor_data",
+    "influxdb.retention.policy": "autogen",
+    
+    "influxdb.measurement.field": "measurement_name",
+    "influxdb.timestamp.field": "timestamp",
+    "influxdb.timestamp.format": "EPOCH_MS",
+    "influxdb.tags": "uuid" 
+  }
+}

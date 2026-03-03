@@ -76,9 +76,14 @@ services:
       CONNECT_PLUGIN_PATH: '/usr/share/java,/usr/share/confluent-hub-components'
       CONNECT_CONFLUENT_TOPIC_REPLICATION_FACTOR: 1
     depends_on:
-      - zookeeper
-      - kafka
-      - mosquitto-central
+      zookeeper:
+        condition: service_started
+      kafka:
+        condition: service_healthy
+      mosquitto-central:
+        condition: service_healthy
+      influxdb:
+        condition: service_healthy
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8083/"]
       interval: 10s
