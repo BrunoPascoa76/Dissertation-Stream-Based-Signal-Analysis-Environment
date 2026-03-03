@@ -1,3 +1,4 @@
+import json
 import threading
 import time
 from typing import Optional
@@ -81,7 +82,7 @@ class FaceReader(BasePlugin):
                 landmarks_list = [(lm.x, lm.y, lm.z) for lm in result.face_landmarks[0]]
                 
                 payload={
-                    "value":landmarks_list,
+                    "value":json.dumps(landmarks_list), #influxdb cannot handle arrays very well
                     "timestamp": timestamp
                 }
 
