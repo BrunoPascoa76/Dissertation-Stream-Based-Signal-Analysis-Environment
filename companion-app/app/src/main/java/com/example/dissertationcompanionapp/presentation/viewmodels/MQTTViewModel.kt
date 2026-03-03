@@ -50,13 +50,18 @@ class MQTTViewModel(
 
         mqttClient?.connectWith()
             ?.cleanStart(false)
+            ?.willPublish() //if it goes down unexpectedly, it warns the desktop
+            ?.topic("sessions/status/hrv")
+            ?.payload("""{"event":"unexpected_disconnect"}""".toByteArray())
+            ?.qos(MqttQos.AT_LEAST_ONCE)
+            ?.applyWillPublish()
             ?.send()
             ?.whenComplete { _, throwable ->
                 if (throwable == null) {
                     _isConnected.value = true
-                    // We subscribe immediately after connecting
                     subscribeToCommands()
                 }
+            }
         }
     }
 

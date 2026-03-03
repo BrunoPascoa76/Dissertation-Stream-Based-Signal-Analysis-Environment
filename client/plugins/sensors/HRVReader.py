@@ -11,7 +11,7 @@ class HRVReader(BasePlugin):
             return
         
         
-        self._publisher.publish("commands/hrv","start",inject_uuid=False)
+        self._publisher.publish("commands/hrv","start",inject_uuid=True) #this way the watch receives the uuid as well
         self.running=True
     
     def stop(self):
