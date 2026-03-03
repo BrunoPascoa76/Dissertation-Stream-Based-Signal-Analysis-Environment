@@ -74,7 +74,7 @@ class MQTTHelper:
             raise RuntimeError("MQTT client is not connected.")
 
         if inject_uuid:
-            injected_payload = {"uuid": self.uuid, **payload} #the uuid is injected here to avoid all N plugins all having to know what the uuid is (especially useful with external devices)
+            injected_payload = {"uuid": self.uuid,"measurement":topic, **payload} #the uuid is injected here to avoid all N plugins all having to know what the uuid is (especially useful with external devices)
         else:
             injected_payload=payload #for commands, where we actually don't want uuid
         message = json.dumps(injected_payload)

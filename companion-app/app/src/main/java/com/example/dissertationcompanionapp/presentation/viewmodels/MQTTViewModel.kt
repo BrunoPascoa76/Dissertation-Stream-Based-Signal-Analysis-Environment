@@ -114,13 +114,14 @@ class MQTTViewModel(
         if (!_isConnected.value || !_sessionStarted.value) return
 
         val json = JSONObject().apply {
+            put("measurement","sensors/hrv")
             put("uuid", uuidRepository.getUUID()?:return)
             put("timestamp", timestamp)
             put("value", hrv)
         }
 
         mqttClient?.publishWith()
-            ?.topic("/sensors/hrv")
+            ?.topic("sensors/hrv")
             ?.payload(json.toString().toByteArray())
             ?.qos(MqttQos.AT_LEAST_ONCE)
             ?.send()
