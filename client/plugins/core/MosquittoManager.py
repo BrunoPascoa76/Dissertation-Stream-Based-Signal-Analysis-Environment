@@ -4,10 +4,12 @@ import socket
 import time
 import docker
 from docker.errors import NotFound, DockerException, APIError
+import pluggy
 
 from utils.BasePlugin import BasePlugin
 from utils.setupLogger import setup_logger
 
+hookimpl = pluggy.HookimplMarker("sensorsDesktop")
 
 class MosquittoManager(BasePlugin):
     """
@@ -38,7 +40,8 @@ class MosquittoManager(BasePlugin):
             self.logger.error("Docker not available")
             raise RuntimeError("Docker not available") from e
         self.container=None
-        
+      
+    @hookimpl
     def status(self):
         """returns the current status of the container"""
         if self.container is None:

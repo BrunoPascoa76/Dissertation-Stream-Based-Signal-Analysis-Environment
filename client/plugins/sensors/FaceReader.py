@@ -3,14 +3,14 @@ import threading
 import time
 from typing import Optional
 
+from pluggy import HookimplMarker
+
 import cv2
 from utils.BasePlugin import BasePlugin
 from utils.MQTTHelper import MQTTHelper
 import mediapipe as mp
 from mediapipe.tasks import python
 from mediapipe.tasks.python import vision
-
-
 class FaceReader(BasePlugin):
     def __init__(self,publisher:MQTTHelper,model_path:str="./conf/face_landmarker.task",target_fps=5):   
         super().__init__(publisher,"FaceReader")
@@ -28,27 +28,23 @@ class FaceReader(BasePlugin):
         )
         self.landmarker = vision.FaceLandmarker.create_from_options(options)
         self.cap = None
-        
+      
+    @HookimplMarker("sensorsDesktop")
     def start(self):
-        if self.running:
+        if self._running:
             return
         self.thread = threading.Thread(target=self._run, daemon=True)
         self.thread.start()
-        self.running=True
-        
+        self._running=True
+    
+    @HookimplMarker("sensorsDesktop")
     def stop(self):
-        self.running = False
+        self._running = False
         if self.thread:
             self.thread.join()
         if self.cap:
             self.cap.release()
         cv2.destroyAllWindows()
-        
-    def status(self):
-        if self.running:
-            return "running"
-        else:
-            return "stopped"
         
     def _run(self):
         """Internal loop to capture frames and detect landmarks."""        
@@ -58,7 +54,7 @@ class FaceReader(BasePlugin):
         capture_fps = self.cap.get(cv2.CAP_PROP_FPS) or 30
         skip_every = int(capture_fps / self.target_fps)
         
-        while self.running and self.cap.isOpened():
+        while self._running and self.cap.isOpened():
             ret, frame = self.cap.read()
             if not ret:
                 continue
