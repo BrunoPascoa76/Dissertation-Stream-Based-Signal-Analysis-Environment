@@ -39,7 +39,7 @@ class SensorSelector(QWidget):
             
             if sensor_name not in self.disabled_sensors:
                 self.app.pm.register(sensor_instance)
-                self.logger.debug(f"registered sensor {sensor_name}")
+                self.logger.debug(f"registered sensor: {sensor_name}")
             
             
     def _toggle_sensor(self, sensor_name):
@@ -53,13 +53,13 @@ class SensorSelector(QWidget):
                 self.logger.info(f"enabled sensor: {sensor_name}")
             else:
                 self.disabled_sensors.append(sensor_name)
-                self.app.pm.unregister(sensor_name)
+                self.app.pm.unregister(sensor)
                 self.logger.info(f"disabled sensor: {sensor_name}")
         except KeyError:
             self.logger.error(f"Sensor not found: {sensor_name}")
             
         
-        self.settings.setValue("disabled_plugins", self.disabled_sensors)
+        self.settings.setValue("disabled_sensors", self.disabled_sensors)
         
     def initUI(self):
         layout = QVBoxLayout()

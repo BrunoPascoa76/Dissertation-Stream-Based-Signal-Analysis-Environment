@@ -2,7 +2,7 @@ import logging
 from logging import Logger
 import sys
 
-def setup_logger(name:str,log_file:str=None,level=logging.INFO)->Logger:
+def setup_logger(name:str,log_file:str=None,level=logging.DEBUG)->Logger:
     """
     Setup and return a logger
     
@@ -17,7 +17,7 @@ def setup_logger(name:str,log_file:str=None,level=logging.INFO)->Logger:
     
     logger=logging.getLogger(name)
     logger.setLevel(level)
-    formatter=logging.Formatter('%(asctime)s [%(levelname)s] %(message)s')
+    formatter=logging.Formatter('%(asctime)s [%(name)s] [%(levelname)s] %(message)s')
     
     if log_file:
         fh = logging.FileHandler(log_file)
