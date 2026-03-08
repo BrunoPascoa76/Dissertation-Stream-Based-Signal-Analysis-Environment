@@ -6,7 +6,7 @@ from pluggy import PluginManager
 from utils.BasePlugin import BasePlugin
 from utils.MQTTHelper import MQTTHelper
 from plugins.core.MosquittoManager import MosquittoManager
-from widgets.SensorSelector import SensorSelector
+from widgets.SensorControlScreen import SensorControlScreen
 
 
 if __name__ == '__main__':
@@ -20,7 +20,7 @@ if __name__ == '__main__':
     
     
     # Create and show the application's window
-    ex = SensorSelector()
+    ex = SensorControlScreen()
     ex.show()
     
     app.aboutToQuit.connect(app.mosquitto.stop)
