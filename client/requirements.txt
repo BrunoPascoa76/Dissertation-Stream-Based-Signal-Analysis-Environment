@@ -1,4 +1,5 @@
 absl-py==2.4.0
+base32-crockford==0.3.0
 certifi==2026.1.4
 cffi==2.0.0
 charset-normalizer==3.4.4
@@ -25,10 +26,14 @@ pycparser==3.0
 Pygments==2.19.2
 pynput==1.8.1
 pyparsing==3.3.2
+PyQt6==6.10.2
+PyQt6-Qt6==6.10.2
+PyQt6_sip==13.11.0
 pytest==9.0.2
 python-dateutil==2.9.0.post0
 python-xlib==0.33
 requests==2.32.5
+-e git+https://github.com/BrunoPascoa76/Dissertation-Stream-Based-Signal-Analysis-Environment.git@430eb0873204fb937a8bdd0d76c6a1f21583b9c7#egg=sensors_desktop&subdirectory=client
 six==1.17.0
 sounddevice==0.5.5
 urllib3==2.6.3

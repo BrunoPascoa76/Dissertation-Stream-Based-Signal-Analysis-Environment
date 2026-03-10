@@ -1,0 +1,19 @@
+[project]
+name = "sensors-desktop"
+version = "0.1.0"
+dependencies = [
+    "pluggy",
+    "PyQt6", 
+]
+
+
+[tool.setuptools]
+packages = ["plugins", "plugins.sensors", "plugins.core", "utils"]
+
+[project.entry-points."plugins.sensors"]
+face = "plugins.sensors.FaceReader:FaceReader"
+hrv = "plugins.sensors.HRVReader:HRVReader"
+keyboard = "plugins.sensors.KeyboardReader:KeyboardReader"
+
+[project.entry-points."plugins.core"]
+mosquitto = "plugins.core.MosquittoManager:MosquittoManager"

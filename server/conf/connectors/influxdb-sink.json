@@ -12,12 +12,12 @@
     "value.converter.schemas.enable": "false",
 
     "influxdb.url": "http://influxdb:8086",
-    "influxdb.database": "sensor_data",
+    "influxdb.db": "sensor_data",
     "influxdb.retention.policy": "autogen",
     
     "influxdb.measurement.field": "measurement",
-    "influxdb.timestamp.field": "timestamp",
-    "influxdb.timestamp.format": "EPOCH_MS",
+    "influxdb.time.fieldname": "timestamp",
+    "influxdb.timeunit": "MILLISECONDS",
     "influxdb.tags": "uuid"
   }
 }

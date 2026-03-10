@@ -1,5 +1,8 @@
 import time
 from typing import Optional, Union
+
+from pluggy import HookimplMarker
+
 from utils.BasePlugin import BasePlugin
 from pynput import keyboard
 
@@ -15,6 +18,7 @@ class KeyboardReader(BasePlugin):
         self.logger=setup_logger("KeyboardReader")
         self._publisher=publisher or MQTTHelper()
     
+    @HookimplMarker("sensorsDesktop")
     def start(self):
         if self._running:
             return
@@ -23,7 +27,8 @@ class KeyboardReader(BasePlugin):
             self._listener=keyboard.Listener(on_press=self._on_press)
         self._listener.start()
         self._running = True
-    
+
+    @HookimplMarker("sensorsDesktop")
     def stop(self):
         if self._listener:
             self._listener.stop()
