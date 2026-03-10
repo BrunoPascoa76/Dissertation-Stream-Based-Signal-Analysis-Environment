@@ -1,7 +1,7 @@
 from importlib.metadata import entry_points
 
 from PyQt6.QtWidgets import QApplication, QCheckBox, QVBoxLayout, QWidget
-from PyQt6.QtCore import QSettings
+
 from PyQt6.QtGui import QFont
 from pluggy import PluginManager
 
@@ -14,9 +14,10 @@ class SensorSelector(QWidget):
         super().__init__()
         self.logger=setup_logger("SensorSelector")
         self.app=QApplication.instance()
-        self.settings = QSettings("Dissertation", "SensorsDesktop")
         
-        self.disabled_sensors = self.settings.value("disabled_sensors", type=list) or []
+        self.uuid=self.app.settings.value("uuid",type=str) or "Unknown"
+        
+        self.disabled_sensors = self.app.settings.value("disabled_sensors", type=list) or []
         self._load_available_sensors()
         
         self.initUI()
@@ -26,7 +27,7 @@ class SensorSelector(QWidget):
         self.app.pm=PluginManager("sensorsDesktop")
         self.app.pm.add_hookspecs(BasePlugin)
         
-        publisher=MQTTHelper()  
+        publisher=MQTTHelper(self.uuid)  
         _entry_points = entry_points(group='plugins.sensors')
         self.available_sensors=dict()
         self.logger.debug(f"loaded entry_points: {(e.name for e in _entry_points)}")
@@ -59,7 +60,7 @@ class SensorSelector(QWidget):
             self.logger.error(f"Sensor not found: {sensor_name}")
             
         
-        self.settings.setValue("disabled_sensors", self.disabled_sensors)
+        self.app.settings.setValue("disabled_sensors", self.disabled_sensors)
         
     def initUI(self):
         layout = QVBoxLayout()

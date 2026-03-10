@@ -3,6 +3,7 @@ import threading
 import time
 from typing import Optional
 
+import numpy as np
 from pluggy import HookimplMarker
 
 import cv2
@@ -12,7 +13,7 @@ import mediapipe as mp
 from mediapipe.tasks import python
 from mediapipe.tasks.python import vision
 class FaceReader(BasePlugin):
-    def __init__(self,publisher:MQTTHelper,model_path:str="./conf/face_landmarker.task",target_fps=5):   
+    def __init__(self,publisher:MQTTHelper,model_path:str="./conf/face_landmarker.task",target_fps=10):   
         super().__init__(publisher,"FaceReader")
         
         self.model_path = model_path
@@ -75,11 +76,65 @@ class FaceReader(BasePlugin):
             result = self.landmarker.detect_for_video(mp_image, timestamp)
 
             if result.face_landmarks:
-                landmarks_list = [(lm.x, lm.y, lm.z) for lm in result.face_landmarks[0]]
+                landmarks_dict = {
+                    str(i): {"x": lm.x, "y": lm.y, "z": lm.z} 
+                    for i, lm in enumerate(result.face_landmarks[0])
+                }   
+                
+                
+                ear=self._detect_blink(landmarks_dict)
+                yaw,pitch=self._get_head_pose(landmarks_dict)
                 
                 payload={
-                    "value":json.dumps(landmarks_list), #influxdb cannot handle arrays very well
+                    "ear":ear,
+                    "yaw":yaw,
+                    "pitch":pitch,
                     "timestamp": timestamp
                 }
 
                 self._publisher.publish("sensors/face",payload)
+                
+    def _get_head_pose(self, landmarks):
+        # Get key landmarks
+        nose = landmarks["1"]
+        left_eye = landmarks["33"]
+        right_eye = landmarks["263"]
+        chin = landmarks["199"]
+
+
+        # Compare the horizontal position of the nose relative to the eye midpoint
+        eye_midpoint_x = (left_eye["x"] + right_eye["x"]) / 2
+        yaw = (nose["x"] - eye_midpoint_x) * 100 
+
+        # Compare the vertical position of the nose relative to the eye/chin midpoint
+        face_midpoint_y = (eye_midpoint_y_avg := (left_eye["y"] + right_eye["y"]) / 2 + chin["y"]) / 2
+        pitch = (nose["y"] - face_midpoint_y) * 100
+        
+
+        #Normalized thresholds
+        return float(yaw),float(pitch)
+        #Note: recommended values: yaw: +-5 pitch +-2, add 1.8 for normalization         
+    
+    def _detect_blink(self, landmarks):
+        LEFT_EYE = [362, 385, 387, 263, 373, 380] 
+        RIGHT_EYE = [33, 160, 158, 133, 153, 144]
+
+        def calculate_ear(eye_indices):
+            # Extract points
+            pts = [landmarks[str(i)] for i in eye_indices]
+
+            # Vertical distances (heights)
+            v1 = np.linalg.norm(np.array([pts[1]['x'], pts[1]['y']]) - np.array([pts[5]['x'], pts[5]['y']]))
+            v2 = np.linalg.norm(np.array([pts[2]['x'], pts[2]['y']]) - np.array([pts[4]['x'], pts[4]['y']]))
+
+            # Horizontal distance (width)
+            h = np.linalg.norm(np.array([pts[0]['x'], pts[0]['y']]) - np.array([pts[3]['x'], pts[3]['y']]))
+
+            return (v1 + v2) / (2.0 * h)
+
+        left_ear = calculate_ear(LEFT_EYE)
+        right_ear = calculate_ear(RIGHT_EYE)
+        avg_ear = (left_ear + right_ear) / 2.0
+
+
+        return float(avg_ear) #blinking=<0.15

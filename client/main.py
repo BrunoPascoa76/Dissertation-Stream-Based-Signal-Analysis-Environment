@@ -1,6 +1,8 @@
 from importlib.metadata import entry_points
 import sys
+import uuid
 from PyQt6.QtWidgets import QApplication, QLabel, QVBoxLayout, QWidget
+from PyQt6.QtCore import QSettings
 from pluggy import PluginManager
 
 from utils.BasePlugin import BasePlugin
@@ -16,8 +18,11 @@ if __name__ == '__main__':
     app.mosquitto=MosquittoManager()
     app.mosquitto.start()
     
+    app.settings=QSettings("Dissertation", "SensorsDesktop")
     
-    
+    if not app.settings.contains("uuid"):
+        app.settings.setValue("uuid",str(uuid.uuid4()))
+        
     
     # Create and show the application's window
     ex = SensorControlScreen()
