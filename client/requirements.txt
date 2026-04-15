@@ -6,6 +6,7 @@ charset-normalizer==3.4.4
 contourpy==1.3.3
 cycler==0.12.1
 docker==7.1.0
+dotenv==0.9.9
 evdev==1.9.3
 flatbuffers==25.12.19
 fonttools==4.61.1
@@ -31,9 +32,10 @@ PyQt6-Qt6==6.10.2
 PyQt6_sip==13.11.0
 pytest==9.0.2
 python-dateutil==2.9.0.post0
+python-dotenv==1.2.2
 python-xlib==0.33
 requests==2.32.5
--e git+https://github.com/BrunoPascoa76/Dissertation-Stream-Based-Signal-Analysis-Environment.git@430eb0873204fb937a8bdd0d76c6a1f21583b9c7#egg=sensors_desktop&subdirectory=client
+-e git+https://github.com/BrunoPascoa76/Dissertation-Stream-Based-Signal-Analysis-Environment.git@8702b9b00622b20d32da66c3b1210c4bd4cca5f8#egg=sensors_desktop&subdirectory=client
 six==1.17.0
 sounddevice==0.5.5
 urllib3==2.6.3

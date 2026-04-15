@@ -10,13 +10,13 @@ from utils.BasePlugin import BasePlugin
 from utils.setupLogger import setup_logger
 
 hookimpl = pluggy.HookimplMarker("sensorsDesktop")
+from os import getenv
 
 class MosquittoManager(BasePlugin):
     """
     Uses Docker to manage a local instance of Mosquitto MQTT.
     """
-    
-    def __init__(self, config_path:str="./conf/mosquitto.conf",container_name:str="mosquitto-broker",port:int=1883,image="eclipse-mosquitto:latest"):
+    def __init__(self, config_path:str=None,container_name:str=None,port:int=None,image=None):
         """
         :param config_path: Path to mosquitto.conf
         :type config_path: str
@@ -26,11 +26,10 @@ class MosquittoManager(BasePlugin):
         :type port: int
         :param image: Docker image to use
         """
-        self.config_path=str(Path(config_path).resolve())
-        print(self.config_path)
-        self.container_name=container_name
-        self.port=port
-        self.image=image
+        self.config_path=str(Path(config_path or getenv("MOSQUITTO_LOCAL_CONFIG_PATH")).resolve())
+        self.container_name=container_name or getenv("MOSQUITTO_LOCAL_CONTAINER_NAME")
+        self.port=port or int(getenv("MOSQUITTO_LOCAL_CONTAINER_PORT"))
+        self.image=image or getenv("MOSQUITTO_LOCAL_CONTAINER_IMAGE")
         self.logger=setup_logger(name="MosquittoManager",level=logging.DEBUG)
         
         try:
@@ -77,7 +76,7 @@ class MosquittoManager(BasePlugin):
                 image=self.image,
                 name=self.container_name,
                 detach=True,
-                ports={f"{self.port}/tcp": self.port},
+                ports={"1883/tcp": self.port},
                 volumes={
                     self.config_path: {
                         "bind": "/mosquitto/config/mosquitto.conf",

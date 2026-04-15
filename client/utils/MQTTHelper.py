@@ -7,9 +7,11 @@ import paho.mqtt.client as mqtt
 
 from utils.setupLogger import setup_logger
 
+from os import getenv
+
 class MQTTHelper:
     """Helper class that sends data to Mosquitto"""
-    def __init__(self,uuid:str="None", host: str = "localhost",port: int = 1883,keepalive: int = 60,client: Optional[mqtt.Client]=None):
+    def __init__(self,uuid:str, host: str = None,port: int = None,keepalive: int = 60,client: Optional[mqtt.Client]=None):
         """
         :param uuid: client uuid
         :type uuid: str
@@ -21,8 +23,8 @@ class MQTTHelper:
         :type keepalive: int
         """
         self.uuid=uuid
-        self.host=host
-        self.port=port
+        self.host=host or "localhost"
+        self.port=port or int(getenv("MOSQUITTO_LOCAL_CONTAINER_PORT"))
         self.keepalive=keepalive
         
         self._client = client or mqtt.Client(client_id=uuid) #dependency injection for unit testing purposes (does not affect normal use)

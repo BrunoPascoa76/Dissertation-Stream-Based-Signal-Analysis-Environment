@@ -1,8 +1,5 @@
-import json
 import threading
 import time
-from typing import Optional
-
 import numpy as np
 from pluggy import HookimplMarker
 
@@ -12,13 +9,15 @@ from utils.MQTTHelper import MQTTHelper
 import mediapipe as mp
 from mediapipe.tasks import python
 from mediapipe.tasks.python import vision
+from os import getenv
+
 class FaceReader(BasePlugin):
-    def __init__(self,publisher:MQTTHelper,model_path:str="./conf/face_landmarker.task",target_fps=10):   
+    def __init__(self,publisher:MQTTHelper,model_path:str=None,target_fps=None):   
         super().__init__(publisher,"FaceReader")
         
-        self.model_path = model_path
+        self.model_path = model_path or getenv("FACIAL_SENSOR_MODEL_PATH")
         self.thread = None
-        self.target_fps=target_fps
+        self.target_fps=target_fps or int(getenv("FACIAL_SENSOR_TARGET_FPS"))
 
         # MediaPipe FaceLandmarker setup
         base_options = python.BaseOptions(model_asset_path=self.model_path)
