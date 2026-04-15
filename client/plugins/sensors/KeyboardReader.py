@@ -13,7 +13,7 @@ from utils.setupLogger import setup_logger
 class KeyboardReader(BasePlugin):
     """Reads keypresses from keyboard (keybinds are anonymized for safety)"""
     def __init__(self, publisher:MQTTHelper, listener:Optional[keyboard.Listener]=None):
-        self._listener: Optional[keyboard.Listener] = listener
+        self._listener: Optional[keyboard.Listener] = listener #for testing only
         self._running=False
         self.logger=setup_logger("KeyboardReader")
         self._publisher=publisher or MQTTHelper()

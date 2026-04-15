@@ -10,9 +10,11 @@ from utils.MQTTHelper import MQTTHelper
 from plugins.core.MosquittoManager import MosquittoManager
 from widgets.SensorControlScreen import SensorControlScreen
 
+from dotenv import load_dotenv
 
 if __name__ == '__main__':
     app = QApplication(sys.argv)
+    load_dotenv() #load configurations into app
     
     #add mosquitto docker manager
     app.mosquitto=MosquittoManager()

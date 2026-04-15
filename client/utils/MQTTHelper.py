@@ -7,9 +7,11 @@ import paho.mqtt.client as mqtt
 
 from utils.setupLogger import setup_logger
 
+from os import getenv
+
 class MQTTHelper:
     """Helper class that sends data to Mosquitto"""
-    def __init__(self,uuid:str="None", host: str = "localhost",port: int = 1883,keepalive: int = 60,client: Optional[mqtt.Client]=None):
+    def __init__(self,uuid:str, host: str = None,port: int = None,keepalive: int = 60,client: Optional[mqtt.Client]=None):
         """
         :param uuid: client uuid
         :type uuid: str
@@ -21,19 +23,43 @@ class MQTTHelper:
         :type keepalive: int
         """
         self.uuid=uuid
-        self.host=host
-        self.port=port
+        self.host=host or "localhost"
+        self.port=port or int(getenv("MOSQUITTO_LOCAL_CONTAINER_PORT"))
         self.keepalive=keepalive
         
         self._client = client or mqtt.Client(client_id=uuid) #dependency injection for unit testing purposes (does not affect normal use)
         self._lock=threading.Lock()
         self._connected= False
+        self._topic_callbacks = {}
         
+        
+        self._client.on_message = self._on_message
         self._client.on_connect = self._on_connect
         self._client.on_disconnect = self._on_disconnect
         self.logger=setup_logger("MQTTHelper")
         self.connect()
         
+    def _on_message(self, _client, _userdata, msg):
+        """handles the correct callback for each message"""
+        self.logger.debug(f"got message from topic {msg.topic}")
+        try:
+            payload = json.loads(msg.payload.decode())
+            
+            with self._lock:
+                for topic, cb in self._topic_callbacks.items():
+                    if mqtt.topic_matches_sub(topic, msg.topic): #wild card support
+                        callback = cb
+                        break
+                    
+            if callback:
+                callback(payload)
+            else:
+                self.logger.info(f"No callback registered for topic: {msg.topic}")
+                
+        except json.JSONDecodeError:
+            self.logger.error(f"Malformed JSON received on {msg.topic}")
+        except Exception as e:
+            self.logger.error(f"Error executing callback for {msg.topic}: {e}")
         
     def _on_connect(self,client,userdata,flags,rc):
         if rc==0:
@@ -89,3 +115,31 @@ class MQTTHelper:
 
             if result.rc != mqtt.MQTT_ERR_SUCCESS:
                 self.logger.error(f"Failed to publish message to {topic}. RC={result.rc}")
+                
+    def subscribe(self,topic:str,callback):
+        """
+        subscribe to the given topic (creating a new thread), calling the callback function for every incoming message
+        """
+        with self._lock:
+            self._topic_callbacks[topic] = callback
+            
+        result, mid = self._client.subscribe(topic)
+        
+        if result == mqtt.MQTT_ERR_SUCCESS:
+            self.logger.info(f"Subscribed to {topic}")
+        else:
+            self.logger.error(f"Failed to subscribe to {topic}. RC={result}")
+            
+    def unsubscribe(self,topic:str):
+        """
+        unsubscribe to a topic
+        """
+        with self._lock:
+            self._topic_callbacks.pop(topic,None)
+            
+        result, mid = self._client.unsubscribe(topic)
+        
+        if result == mqtt.MQTT_ERR_SUCCESS:
+            self.logger.info(f"Unsubscribed to {topic}")
+        else:
+            self.logger.error(f"Failed to unsubscribe to {topic}. RC={result}")
