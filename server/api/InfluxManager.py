@@ -8,12 +8,8 @@ class InfluxManager:
         self.db = os.getenv("INFLUXDB_DB", "mqtt")
         self.client = InfluxDBClient(host=self.host, port=self.port, database=self.db)
 
-    def query_sensor(self, sensor_name, start_ms, end_ms, target_uuid):
-        # InfluxQL for 1.8 using ms precision
-        query = (
-            f'SELECT * FROM "{sensor_name}" '
-            f'WHERE "uuid" = \'{target_uuid}\' '
-            f'AND time >= {start_ms}ms AND time <= {end_ms}ms'
-        )
-        result = self.client.query(query)
-        return list(result.get_points())
+    def query(self,query):
+        try:
+            self.client.query(query)
+        except Exception as e:
+            raise(e)
