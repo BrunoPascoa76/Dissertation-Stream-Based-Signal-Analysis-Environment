@@ -8,7 +8,7 @@ dependencies = [
 
 
 [tool.setuptools]
-packages = ["plugins", "plugins.sensors", "plugins.core", "utils"]
+packages = ["plugins", "plugins.sensors", "plugins.core","plugins.visualization", "utils"]
 
 [project.entry-points."plugins.sensors"]
 face = "plugins.sensors.FaceReader:FaceReader"
