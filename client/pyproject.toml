@@ -15,5 +15,9 @@ face = "plugins.sensors.FaceReader:FaceReader"
 hrv = "plugins.sensors.HRVReader:HRVReader"
 keyboard = "plugins.sensors.KeyboardReader:KeyboardReader"
 
+[project.entry-points."plugins.visualizations"]
+keysperminute = "plugins.visualization.KeysPerMinuteVisualization:KeysPerMinuteVisualization"
+
+
 [project.entry-points."plugins.core"]
 mosquitto = "plugins.core.MosquittoManager:MosquittoManager"

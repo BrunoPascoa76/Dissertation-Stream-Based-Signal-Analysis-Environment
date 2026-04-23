@@ -7,12 +7,14 @@ from pluggy import PluginManager
 from utils.crockford_encode import address_encode
 from utils.setupLogger import setup_logger
 from widgets.SensorSelector import SensorSelector
+from widgets.VisualizationParent import VisualizationParent
 
 class SensorControlScreen(QWidget):
     def __init__(self, parent=None):
         super().__init__(parent)
         self.app = QApplication.instance()
         self.sensor_selector = SensorSelector()
+        self.viz_parent=VisualizationParent()
         self.logger=setup_logger("SensorControlScreen")
         self.setupUI()
         
@@ -42,7 +44,6 @@ class SensorControlScreen(QWidget):
         
         layout.addWidget(self.sensor_selector)
         
-        # Part 3: Start/Stop Button
         self.button = QPushButton("Start")
         self.button.setStyleSheet("""
             QPushButton {
@@ -57,6 +58,21 @@ class SensorControlScreen(QWidget):
         self.button.clicked.connect(self.toggle_action)
         layout.addWidget(self.button)
         
+        
+        self.button_viz = QPushButton("Show Visualizations")
+        self.button_viz.setStyleSheet("""
+            QPushButton {
+                background-color: #4CAF50;
+                color: white;
+                padding: 10px;
+                font-weight: bold;
+                border-radius: 5px;
+            }
+        """)
+        
+        self.button_viz.clicked.connect(self.show_visualization)
+        layout.addWidget(self.button_viz)
+        
         self.setLayout(layout)
     
     def toggle_action(self):
@@ -64,17 +80,12 @@ class SensorControlScreen(QWidget):
         if self.button.text() == "Start":
             # Start the plugin hooks
             self.app.pm.hook.start()
-            self.show_visualizations()
             self.button.setText("Stop")
         else:
             # Stop the plugin hooks
             self.app.pm.hook.stop()
             self.button.setText("Start")
-
-    def show_visualizations(self):
-        self.viz=KeysPerMinuteVisualization()
-        self.viz.start()
-        self.graph_win = self.viz.get_ui_element()
-        self.graph_win.setWindowTitle("Live Keyboard CPM")
-        self.graph_win.resize(800, 400)
-        self.graph_win.show()
+            
+    def show_visualization(self):
+        self.viz_parent.show()
+        self.viz_parent.raise_()

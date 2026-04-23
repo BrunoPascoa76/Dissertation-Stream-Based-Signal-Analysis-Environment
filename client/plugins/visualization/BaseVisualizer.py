@@ -8,7 +8,7 @@ from utils.setupLogger import setup_logger
 from os import getenv
 
 class BaseVisualizer(BasePlugin): 
-    def __init__(self, sensor_name, title=None, x_label=None, y_label=None, update_ms=2000, background_color="w", line_color="r"):
+    def __init__(self, sensor_name, title, x_label=None, y_label=None, update_ms=2000, background_color="w", line_color="r"):
         super().__init__(None,"") # Initialize BasePlugin logic (ID, settings, etc.)
         self.sensor_name = sensor_name
         self.is_active = False        
@@ -23,10 +23,10 @@ class BaseVisualizer(BasePlugin):
         
         settings=QSettings("Dissertation", "SensorsDesktop")
         self.uuid=settings.value("uuid", defaultValue=None)
-        print(self.uuid)
         
-        if title:
-            self.widget.setTitle(title)
+        self.title=title
+        self.widget.setTitle(title)
+            
         if y_label:
             self.widget.setLabel('left', title)
         if x_label:    

@@ -37,7 +37,7 @@ python-dateutil==2.9.0.post0
 python-dotenv==1.2.2
 python-xlib==0.33
 requests==2.32.5
--e git+https://github.com/BrunoPascoa76/Dissertation-Stream-Based-Signal-Analysis-Environment.git@4101b795e7b747f8678c58c8fdbb855998c34f4c#egg=sensors_desktop&subdirectory=client
+sensors-desktop @ file:///home/bruno/Desktop/Escola/Dissertation/client
 six==1.17.0
 sounddevice==0.5.5
 urllib3==2.6.3
