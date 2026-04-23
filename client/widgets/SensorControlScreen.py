@@ -1,6 +1,7 @@
 from importlib.metadata import entry_points
 from PyQt6.QtWidgets import QApplication, QLabel, QPushButton, QVBoxLayout, QWidget
 from PyQt6.QtCore import Qt
+from plugins.visualization.KeysPerMinuteVisualization import KeysPerMinuteVisualization
 from pluggy import PluginManager
 
 from utils.crockford_encode import address_encode
@@ -63,8 +64,17 @@ class SensorControlScreen(QWidget):
         if self.button.text() == "Start":
             # Start the plugin hooks
             self.app.pm.hook.start()
+            self.show_visualizations()
             self.button.setText("Stop")
         else:
             # Stop the plugin hooks
             self.app.pm.hook.stop()
             self.button.setText("Start")
+
+    def show_visualizations(self):
+        self.viz=KeysPerMinuteVisualization()
+        self.viz.start()
+        self.graph_win = self.viz.get_ui_element()
+        self.graph_win.setWindowTitle("Live Keyboard CPM")
+        self.graph_win.resize(800, 400)
+        self.graph_win.show()

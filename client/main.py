@@ -28,6 +28,7 @@ if __name__ == '__main__':
     
     # Create and show the application's window
     ex = SensorControlScreen()
+    ex.setWindowTitle("Sensor data gathering")
     ex.show()
     
     app.aboutToQuit.connect(app.mosquitto.stop)

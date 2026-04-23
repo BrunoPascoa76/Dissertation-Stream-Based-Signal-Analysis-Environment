@@ -5,25 +5,34 @@ from PyQt6.QtCore import QSettings, QTimer, pyqtSlot
 from abc import abstractmethod
 from utils.BasePlugin import BasePlugin
 from utils.setupLogger import setup_logger
-
+from os import getenv
 
 class BaseVisualizer(BasePlugin): 
-    def __init__(self, sensor_name, update_ms=2000, background_color="w", line_color="r"):
-        super().__init__() # Initialize BasePlugin logic (ID, settings, etc.)
+    def __init__(self, sensor_name, title=None, x_label=None, y_label=None, update_ms=2000, background_color="w", line_color="r"):
+        super().__init__(None,"") # Initialize BasePlugin logic (ID, settings, etc.)
         self.sensor_name = sensor_name
-        self.is_active = False
-        self.update_ms=update_ms
+        self.is_active = False        
         
         self.widget = pg.PlotWidget()
         self.widget.setBackground(background_color)
         self.curve = self.widget.plot(pen=line_color)
         
         self.timer = QTimer()
-        self.timer.setInterval(self.update_interval)
+        self.timer.setInterval(update_ms)
         self.timer.timeout.connect(self._update_loop)
         
         settings=QSettings("Dissertation", "SensorsDesktop")
         self.uuid=settings.value("uuid", defaultValue=None)
+        print(self.uuid)
+        
+        if title:
+            self.widget.setTitle(title)
+        if y_label:
+            self.widget.setLabel('left', title)
+        if x_label:    
+            self.widget.setLabel('bottom', 'Seconds Ago')
+            
+        self.widget.showGrid(x=True, y=True, alpha=0.3)
         
         self.logger=setup_logger(f"visualizer_{sensor_name}")
         
@@ -39,7 +48,6 @@ class BaseVisualizer(BasePlugin):
         if self.timer.isActive():
             self.timer.stop()
             
-    @pyqtSlot() #helps with efficiency
     def _update_loop(self):
         if not self.is_active:
             return
@@ -48,8 +56,11 @@ class BaseVisualizer(BasePlugin):
         if params is None:
             return
 
+        host=getenv("REST_IP")
+        port=getenv("REST_PORT")
+        
         try:
-            api_url = f"http://localhost:8080/data/{self.sensor_name}"
+            api_url = f"http://{host}:{port}/data/{self.sensor_name}"
             response = requests.get(api_url, params=params, timeout=1.5)
             response.raise_for_status()
             
@@ -65,6 +76,8 @@ class BaseVisualizer(BasePlugin):
         except Exception as e:
             print(f"[{self.sensor_name}] Data Error: {e}")
 
+    def get_ui_element(self):
+        return self.widget
 
     @abstractmethod
     def get_query_params(self):

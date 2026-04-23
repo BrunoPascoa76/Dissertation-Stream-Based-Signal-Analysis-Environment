@@ -10,6 +10,6 @@ class InfluxManager:
 
     def query(self,query):
         try:
-            self.client.query(query)
+            return self.client.query(query)
         except Exception as e:
             raise(e)

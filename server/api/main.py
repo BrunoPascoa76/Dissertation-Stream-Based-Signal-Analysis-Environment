@@ -3,7 +3,7 @@ from typing import Optional
 
 from fastapi import FastAPI, HTTPException
 from uuid import uuid4 as uuid
-import InfluxManager
+from InfluxManager import InfluxManager
 
 
 app = FastAPI()
@@ -25,7 +25,7 @@ def get_flexible_data(sensor: str, start: int, end: int, uuid: str, agg: str = "
     safe_field = field.replace('"', '') #sanitize the field
     
     query= (
-        f'SELECT {safe_agg}("{safe_field}") FROM "{sensor}" '
+        f'SELECT {safe_agg}("{safe_field}") FROM "sensors/{sensor}" '
         f"WHERE \"uuid\" = '{uuid}' "
         f"AND time >= {start}ms AND time <= {end}ms"
     )
@@ -37,6 +37,12 @@ def get_flexible_data(sensor: str, start: int, end: int, uuid: str, agg: str = "
         query += f" GROUP BY time({interval}) fill(0)"
     try:    
         result = db_manager.query(query)
-        return {"results": list(result.get_points())}
+        if result is None:
+            print(f"Query returned None. Check InfluxDB connection or Database name.")
+            return {"results": []}
+        else:
+            print(list(result.get_points()))
+            return {"results": list(result.get_points())}
     except Exception as e:
+        print(e)
         raise HTTPException(status_code=500, detail=str(e))
