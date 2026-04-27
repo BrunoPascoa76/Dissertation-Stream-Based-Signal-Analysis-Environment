@@ -23,10 +23,10 @@ class HRVReader(BasePlugin):
     def stop(self):
         if not self._running:
             return
+        self._running=False
         
         payload={
             "command":"stop"
         }
         
         self._publisher.publish("commands/hrv",payload,inject_uuid=False)
-        self.running=False

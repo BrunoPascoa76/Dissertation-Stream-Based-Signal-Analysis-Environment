@@ -1,5 +1,6 @@
 package com.example.dissertationcompanionapp.presentation.viewmodels
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import com.example.dissertationcompanionapp.presentation.data.AddressRepository
 import com.example.dissertationcompanionapp.presentation.data.UUIDRepository
@@ -44,6 +45,15 @@ class MQTTViewModel(
             .serverHost(host)
             .serverPort(port)
             .automaticReconnectWithDefaultConfig()
+            .addConnectedListener {
+                _isConnected.value = true
+                subscribeToCommands()
+            }
+            .addDisconnectedListener { context ->
+                _isConnected.value = false
+                _sessionStarted.value = false
+                Log.d("MQTT", "Disconnected: ${context.cause.message}")
+            }
             .buildAsync()
 
         mqttClient?.connectWith()
@@ -55,9 +65,8 @@ class MQTTViewModel(
             ?.applyWillPublish()
             ?.send()
             ?.whenComplete { _, throwable ->
-                if (throwable == null) {
-                    _isConnected.value = true
-                    subscribeToCommands()
+                if (throwable != null) {
+                    _isConnected.value = false
                 }
             }
     }
@@ -74,7 +83,7 @@ class MQTTViewModel(
 
     private fun handleCommand(message: String?) {
         if (message.isNullOrBlank()) return
-
+        Log.d("abc",message)
         try {
             val command = json.decodeFromString<WatchCommand>(message)
 

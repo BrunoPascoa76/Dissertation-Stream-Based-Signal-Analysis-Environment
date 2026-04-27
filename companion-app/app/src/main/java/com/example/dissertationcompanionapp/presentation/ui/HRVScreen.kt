@@ -39,7 +39,6 @@ fun HRVScreen(viewModel: MainViewModel,mqttViewModel: MQTTViewModel) {
     val hrv by viewModel.hrv.collectAsState()
     val bpm by viewModel.bpm.collectAsState()
 
-
     //publish hrv when it changes
     LaunchedEffect(hrv) {
         hrv?.let { value ->
