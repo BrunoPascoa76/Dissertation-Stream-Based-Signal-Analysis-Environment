@@ -15,17 +15,21 @@ def get_uuid():
     return {"uuid": str(uuid())}
 
 @app.get("/data/{sensor}")
-def get_flexible_data(sensor: str, start: int, end: int, uuid: str, agg: str = "AVG", field: str = "value",interval: Optional[str] = None):
+def get_flexible_data(sensor: str, start: int, end: int, uuid: str, agg: str = "NONE", field: str = "value",interval: Optional[str] = None):
     """query the database using pre-approved parameters"""
-    allowed_aggs = ["AVG", "COUNT", "SUM", "MIN", "MAX", "LAST"] #whitelisted aggregators
+    allowed_aggs = ["MEAN", "COUNT", "SUM", "MIN", "MAX", "LAST","NONE"] #whitelisted aggregators
     if agg.upper() not in allowed_aggs:
         raise HTTPException(status_code=400, detail="Invalid aggregation")
     
     safe_agg = agg.upper()
     safe_field = field.replace('"', '') #sanitize the field
     
-    query= (
-        f'SELECT {safe_agg}("{safe_field}") FROM "sensors/{sensor}" '
+    if safe_agg=="NONE":
+        query=f'SELECT "{safe_field}" FROM "sensors/{sensor}" '
+    else:
+        query=f'SELECT {safe_agg}("{safe_field}") FROM "sensors/{sensor}" '
+    
+    query+= (
         f"WHERE \"uuid\" = '{uuid}' "
         f"AND time >= {start}ms AND time <= {end}ms"
     )

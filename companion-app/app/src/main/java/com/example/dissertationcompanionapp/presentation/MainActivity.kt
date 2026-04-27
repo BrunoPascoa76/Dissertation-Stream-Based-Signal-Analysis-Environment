@@ -14,6 +14,7 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import androidx.wear.ambient.AmbientLifecycleObserver
 import com.example.dissertationcompanionapp.presentation.data.AddressRepository
 import com.example.dissertationcompanionapp.presentation.data.UUIDRepository
 import com.example.dissertationcompanionapp.presentation.theme.DissertationCompanionAppTheme
@@ -23,8 +24,21 @@ import com.example.dissertationcompanionapp.presentation.viewmodels.MQTTViewMode
 import com.example.dissertationcompanionapp.presentation.viewmodels.MainViewModel
 
 class MainActivity : ComponentActivity() {
+    private lateinit var ambientObserver: AmbientLifecycleObserver
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        //should keep it working even when the watchface is off
+        val callback = object : AmbientLifecycleObserver.AmbientLifecycleCallback {
+            override fun onEnterAmbient(ambientDetails: AmbientLifecycleObserver.AmbientDetails) {}
+            override fun onExitAmbient() {}
+            override fun onUpdateAmbient() {}
+        }
+
+        // 2. Attach the observer to this activity's lifecycle
+        ambientObserver = AmbientLifecycleObserver(this, callback)
+        lifecycle.addObserver(ambientObserver)
 
         val requestPermissionLauncher = registerForActivityResult(
             ActivityResultContracts.RequestPermission()
@@ -78,7 +92,7 @@ fun WearAppNav(navController: NavHostController, viewModel: MainViewModel, mqttV
             PairingCodeScreen(navController, viewModel)
         }
         composable("hrv_screen") {
-            HRVWrapper(viewModel, mqttViewModel)
+            HRVWrapper(viewModel, mqttViewModel,navController)
         }
     }
 }

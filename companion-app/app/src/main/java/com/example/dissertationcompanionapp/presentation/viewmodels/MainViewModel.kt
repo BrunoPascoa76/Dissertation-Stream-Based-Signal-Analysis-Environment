@@ -72,6 +72,11 @@ class MainViewModel(
         }
     }
 
+    fun clearAddress(){
+        _address.value=null
+        addressRepository.clearAddress()
+    }
+
     override fun onCleared() {
         super.onCleared()
         sensorManager.unregisterListener(this)
