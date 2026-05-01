@@ -1,13 +1,11 @@
 import time
-
 import numpy as np
-
 from plugins.visualization.CompositeVisualizer import CompositeVisualizer
 
 
-class AttentionVisualizer(CompositeVisualizer):
+class AttentionVisualization(CompositeVisualizer):
     def __init__(self):
-        super().__init__(["hrv","keyboard","face"],title="Attention",x_label="Seconds ago",y_label="HRV")
+        super().__init__(["keyboard","hrv","face"],title="Attention",x_label="Seconds ago",y_label="HRV")
         self.attention_weights={"face":0.5,"hrv":0.2,"keyboard":0.3} #these sensors may be finetuned for better results
         
     def get_query_params(self):
@@ -52,6 +50,7 @@ class AttentionVisualizer(CompositeVisualizer):
         return params
     
     def process_data(self, json_results):
+        print(json_results)
         total_weight=0 #by dividing by total weight, unused sensors will not contribute to the results
         attention_scores=[] #each element is an array of scores, 1 per second
         active_sensors=[]

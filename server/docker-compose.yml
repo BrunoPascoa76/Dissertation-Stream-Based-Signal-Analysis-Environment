@@ -8,7 +8,6 @@ services:
       - ./conf:/mosquitto/config:Z
       - ./mosquitto-central/data:/mosquitto/data:Z
       - ./mosquitto-central/log:/mosquitto/log:Z
-    restart: unless-stopped
     healthcheck:
       test: ["CMD", "sh", "-c", "mosquitto_pub -h localhost -p 1883 -t healthcheck -m ping || exit 1"]
       interval: 5s
@@ -17,7 +16,6 @@ services:
 
   zookeeper:
     image: zookeeper:3.4.9
-    restart: unless-stopped
     hostname: zookeeper
     container_name: zookeeper
     ports:

@@ -24,9 +24,9 @@ def get_flexible_data(sensor: str, start: int, end: int, uuid: str, agg: str = "
     safe_agg = agg.upper()
     fields_list = [f.strip() for f in field.replace('"', '').split(',')]
     
-    if safe_agg=="NONE":
+    if safe_agg == "NONE":
         safe_fields = ", ".join([f'"{f}"' for f in fields_list])
-        query=f'SELECT "{safe_fields}" FROM "sensors/{sensor}" '
+        query = f'SELECT {safe_fields} FROM "sensors/{sensor}" '
     else:
         agg_fields = ", ".join([f'{safe_agg}("{f}")' for f in fields_list])
         query = f'SELECT {agg_fields} FROM "sensors/{sensor}" '
@@ -35,6 +35,7 @@ def get_flexible_data(sensor: str, start: int, end: int, uuid: str, agg: str = "
         f"WHERE \"uuid\" = '{uuid}' "
         f"AND time >= {start}ms AND time <= {end}ms"
     )
+    print(query)
     
     #allow to group per interval (for example for keys-per-minute)
     if interval:
@@ -45,9 +46,7 @@ def get_flexible_data(sensor: str, start: int, end: int, uuid: str, agg: str = "
         result = db_manager.query(query)
         if result is None:
             print(f"Query returned None. Check InfluxDB connection or Database name.")
-            return {"results": []}
         else:
-            print(list(result.get_points()))
             return {"results": list(result.get_points())}
     except Exception as e:
         print(e)
