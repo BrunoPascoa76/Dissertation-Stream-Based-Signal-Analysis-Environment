@@ -1,4 +1,6 @@
+import argparse
 from importlib.metadata import entry_points
+import logging
 import sys
 import uuid
 from PyQt6.QtWidgets import QApplication, QLabel, QVBoxLayout, QWidget
@@ -13,6 +15,14 @@ from widgets.SensorControlScreen import SensorControlScreen
 from dotenv import load_dotenv
 
 if __name__ == '__main__':
+    #setup logger
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--verbose', action='store_true')
+    args = parser.parse_args()
+    
+    if not args.verbose:
+        logging.disable(logging.INFO)
+    
     app = QApplication(sys.argv)
     load_dotenv() #load configurations into app
     
