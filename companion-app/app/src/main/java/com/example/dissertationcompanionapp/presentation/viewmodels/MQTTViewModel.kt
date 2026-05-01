@@ -126,7 +126,7 @@ class MQTTViewModel(
             put("measurement","sensors/hrv")
             put("uuid", uuidRepository.getUUID()?:return)
             put("timestamp", timestamp)
-            put("value", hrv)
+            put("value", hrv.toFloat())
         }
 
         mqttClient?.publishWith()
