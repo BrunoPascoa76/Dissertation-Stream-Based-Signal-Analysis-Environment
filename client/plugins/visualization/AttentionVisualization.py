@@ -50,7 +50,6 @@ class AttentionVisualization(CompositeVisualizer):
         return params
     
     def process_data(self, json_results):
-        print(json_results)
         total_weight=0 #by dividing by total weight, unused sensors will not contribute to the results
         attention_scores=[] #each element is an array of scores, 1 per second
         active_sensors=[]
@@ -68,7 +67,7 @@ class AttentionVisualization(CompositeVisualizer):
             attention_scores.append(self._get_keyboard_score(json_results["keyboard"]))
             total_weight+=self.attention_weights["keyboard"]
             active_sensors.append("keyboard")
-        
+                    
         #calculate final attention
         if not attention_scores or total_weight == 0:
             return None, None
@@ -111,8 +110,8 @@ class AttentionVisualization(CompositeVisualizer):
         if not hrv_data:
             return []
     
-        MIN_HRV = 30.0  # Stress/Distraction floor
-        MAX_HRV = 90.0  # Focus/Flow ceiling
+        MIN_HRV = 15.0  
+        MAX_HRV = 27.0
         
         scores = []
         for d in hrv_data:
@@ -137,9 +136,9 @@ class AttentionVisualization(CompositeVisualizer):
         EAR_THRESHOLD = 0.22   # Below this = eyes closed/blinking
 
         for d in face_data:
-            ear = d.get('mean_ear', 0)
-            yaw = abs(d.get('mean_yaw', 0) + OFFSET)
-            pitch = abs(d.get('mean_pitch', 0) + OFFSET)
+            ear = d.get('mean', 0)
+            yaw = abs(d.get('mean_1', 0) + OFFSET)
+            pitch = abs(d.get('mean_2', 0) + OFFSET)
 
             if ear < EAR_THRESHOLD:
                 scores.append(0)
