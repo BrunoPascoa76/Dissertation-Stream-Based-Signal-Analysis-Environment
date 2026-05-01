@@ -4,6 +4,7 @@ services:
     container_name: mosquitto-central
     ports:
       - "1884:1883"
+    restart: unless-stopped
     volumes:
       - ./conf:/mosquitto/config:Z
       - ./mosquitto-central/data:/mosquitto/data:Z
@@ -18,6 +19,7 @@ services:
     image: zookeeper:3.4.9
     hostname: zookeeper
     container_name: zookeeper
+    restart: unless-stopped
     ports:
       - "2181:2181"
     environment:
@@ -141,54 +143,3 @@ services:
       done;
       echo "Done.";
       '
-
-  prometheus:
-    image: prom/prometheus:latest
-    container_name: prometheus
-    user: root
-    ports:
-      - "9090:9090"
-    volumes:
-      - ./conf:/etc/prometheus:Z
-    command:
-      - "--config.file=/etc/prometheus/prometheus.yml"
-
-  grafana:
-    image: grafana/grafana:latest
-    container_name: grafana
-    volumes:
-    - ./grafana/dashboards:/var/lib/grafana/dashboards:Z
-    - ./grafana/provisioning:/etc/grafana/provisioning:Z
-    ports:
-      - "3000:3000"
-    environment:
-      - GF_SECURITY_ADMIN_PASSWORD=admin
-    depends_on:
-      - prometheus
-
-  kafka-exporter:
-    image: danielqsj/kafka-exporter:latest
-    container_name: kafka-exporter
-    environment:
-      - KAFKA_BROKERS=kafka:9092
-    depends_on:
-      kafka:
-        condition: service_healthy
-
-  mosquitto-exporter:
-    image: sapcc/mosquitto-exporter:latest
-    container_name: mosquitto-exporter
-    environment:
-      - MQTT_SERVER=mosquitto:1883
-    depends_on:
-      - mosquitto-central
-
-  kafdrop: 
-    image: obsidiandynamics/kafdrop:3.27.0
-    container_name: kafdrop
-    depends_on:
-      - kafka
-    ports:
-      - "9000:9000"
-    environment:
-      KAFKA_BROKERCONNECT: kafka:9092
