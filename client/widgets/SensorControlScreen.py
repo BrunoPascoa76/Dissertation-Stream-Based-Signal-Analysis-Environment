@@ -87,5 +87,10 @@ class SensorControlScreen(QWidget):
             self.button.setText("Start")
             
     def show_visualization(self):
+        self.viz_parent.setWindowTitle("Data visualization")
         self.viz_parent.show()
         self.viz_parent.raise_()
+        
+    def closeEvent(self, event):
+        self.viz_parent.close()
+        event.accept()
