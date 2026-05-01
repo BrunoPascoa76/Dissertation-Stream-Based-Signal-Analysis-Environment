@@ -85,9 +85,9 @@ class FaceReader(BasePlugin):
                 yaw,pitch=self._get_head_pose(landmarks_dict)
                 
                 payload={
-                    "ear":ear,
-                    "yaw":yaw,
-                    "pitch":pitch,
+                    "ear_f":ear,
+                    "yaw_f":yaw,
+                    "pitch_f":pitch,
                     "timestamp": timestamp
                 }
 

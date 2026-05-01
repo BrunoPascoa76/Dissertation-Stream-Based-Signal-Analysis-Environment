@@ -14,7 +14,7 @@ class KeysPerMinuteVisualization(BaseVisualizer):
         return {
             "uuid": self.uuid,      # Identifies the participant
             "agg": "COUNT",           # We want to count keypresses
-            "field": "value",      # The field we are counting
+            "field": "value_s",      # The field we are counting
             "interval": "1s",         # The 'Group By' bucket size
             "start": start_ms,        # Start timestamp
             "end": now_ms             # End timestamp

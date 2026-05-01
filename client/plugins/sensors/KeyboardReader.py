@@ -40,7 +40,7 @@ class KeyboardReader(BasePlugin):
         category=categorize_key(key) #categorize key to make the info sent "less dangerous"
         
         payload = {
-            "value": category,
+            "value_s": category,
             "timestamp": timestamp
         }
         self.logger.info(f"received key of category {category}")

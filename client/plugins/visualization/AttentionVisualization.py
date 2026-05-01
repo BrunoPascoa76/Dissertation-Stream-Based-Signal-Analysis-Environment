@@ -19,29 +19,29 @@ class AttentionVisualization(CompositeVisualizer):
             {
             "uuid": self.uuid,      
             "agg": "COUNT",           
-            "field": "value",      
+            "field": "value_s",      
             "interval": "1s",         
             "start": start_ms,        
             "end": now_ms
             }
         )
-        
+        #hrv
         params.append(
             {
             "uuid": self.uuid,
             "agg": "MEAN",
-            "field": "value",
+            "field": "value_f",
             "interval": "1s",
             "start": start_ms,
             "end": now_ms
             }
         )
-        
+        #face
         params.append(
             {
             "uuid": self.uuid,
             "agg": "MEAN",
-            "field": "ear,yaw,pitch",
+            "field": "ear_f,yaw_f,pitch_f",
             "interval": "1s",
             "start": start_ms,
             "end": now_ms

@@ -14,7 +14,7 @@ class HRVVisualization(BaseVisualizer):
         return {
             "uuid": self.uuid,      # Identifies the participant
             "agg": None,           # we just want the values          
-            "field": "value",      # The field we are counting
+            "field": "value_f",      # The field we are counting
             "start": start_ms,        # Start timestamp
             "end": now_ms             # End timestamp
         }
@@ -23,7 +23,7 @@ class HRVVisualization(BaseVisualizer):
         if not json_results:
             return None, None
 
-        y = [d.get('value') for d in json_results]
+        y = [d.get('value_f') for d in json_results]
         
         x = list(range(len(y))) 
         

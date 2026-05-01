@@ -11,6 +11,10 @@
     "value.converter": "org.apache.kafka.connect.json.JsonConverter",
     "value.converter.schemas.enable": "false",
 
+    "transforms": "ForceFloat",
+    "transforms.ForceFloat.type": "org.apache.kafka.connect.transforms.Cast$Value",
+    "transforms.ForceFloat.spec": "~^.*_f$:float64",
+
     "influxdb.url": "http://influxdb:8086",
     "influxdb.db": "sensor_data",
     "influxdb.retention.policy": "autogen",

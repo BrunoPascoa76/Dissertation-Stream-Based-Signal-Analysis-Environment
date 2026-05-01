@@ -35,7 +35,6 @@ def get_flexible_data(sensor: str, start: int, end: int, uuid: str, agg: str = "
         f"WHERE \"uuid\" = '{uuid}' "
         f"AND time >= {start}ms AND time <= {end}ms"
     )
-    print(query)
     
     #allow to group per interval (for example for keys-per-minute)
     if interval:
