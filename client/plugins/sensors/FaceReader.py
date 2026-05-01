@@ -110,7 +110,6 @@ class FaceReader(BasePlugin):
         pitch = (nose["y"] - face_midpoint_y) * 100
         
 
-        #Normalized thresholds
         return float(yaw),float(pitch)
         #Note: recommended values: yaw: +-5 pitch +-2, add 1.8 for normalization         
     

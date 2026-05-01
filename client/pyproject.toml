@@ -17,7 +17,9 @@ keyboard = "plugins.sensors.KeyboardReader:KeyboardReader"
 
 [project.entry-points."plugins.visualizations"]
 keysperminute = "plugins.visualization.KeysPerMinuteVisualization:KeysPerMinuteVisualization"
-hrv = "plugins.visualization.HRVVisualization:HRVVisualization"
+hrv_vizualization = "plugins.visualization.HRVVisualization:HRVVisualization"
+attention = "plugins.visualization.AttentionVisualization:AttentionVisualization"
+
 
 
 [project.entry-points."plugins.core"]

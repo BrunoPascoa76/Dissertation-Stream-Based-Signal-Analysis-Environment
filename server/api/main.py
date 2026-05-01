@@ -22,12 +22,14 @@ def get_flexible_data(sensor: str, start: int, end: int, uuid: str, agg: str = "
         raise HTTPException(status_code=400, detail="Invalid aggregation")
     
     safe_agg = agg.upper()
-    safe_field = field.replace('"', '') #sanitize the field
+    fields_list = [f.strip() for f in field.replace('"', '').split(',')]
     
     if safe_agg=="NONE":
-        query=f'SELECT "{safe_field}" FROM "sensors/{sensor}" '
+        safe_fields = ", ".join([f'"{f}"' for f in fields_list])
+        query=f'SELECT "{safe_fields}" FROM "sensors/{sensor}" '
     else:
-        query=f'SELECT {safe_agg}("{safe_field}") FROM "sensors/{sensor}" '
+        agg_fields = ", ".join([f'{safe_agg}("{f}")' for f in fields_list])
+        query = f'SELECT {agg_fields} FROM "sensors/{sensor}" '
     
     query+= (
         f"WHERE \"uuid\" = '{uuid}' "
