@@ -67,9 +67,6 @@ class AttentionVisualization(CompositeVisualizer):
             attention_scores.append(self._get_keyboard_score(json_results["keyboard"]))
             total_weight+=self.attention_weights["keyboard"]
             active_sensors.append("keyboard")
-            
-        print(active_sensors)
-        print(attention_scores)
                     
         #calculate final attention
         if not attention_scores or total_weight == 0:
