@@ -8,7 +8,7 @@ from plugins.visualization.BaseVisualizer import BaseVisualizer
 class CompositeVisualizer(BaseVisualizer):
     """Subclass of BaseVisualizer. It works almost identically to BaseVisualizer, however it visualizes data extrapolated from multiple sensors instead of just one"""
     def __init__(self, sensor_names, title, x_label=None, y_label=None, update_ms=2000, background_color="w", line_color="r"):
-        super().__init__("",title, x_label=None, y_label=None, update_ms=2000, background_color="w", line_color="r")
+        super().__init__("",title, x_label=x_label, y_label=y_label, update_ms=update_ms, background_color=background_color, line_color=line_color)
         self.sensor_names=sensor_names
         
     def _update_loop(self):

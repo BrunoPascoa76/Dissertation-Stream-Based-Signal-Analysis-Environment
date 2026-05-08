@@ -110,7 +110,7 @@ class FaceReader(BasePlugin):
         pitch = (nose["y"] - face_midpoint_y) * 100
         
 
-        return float(yaw),float(pitch)
+        return float(yaw)+0.00001,float(pitch)+0.00001 #that small value will prevent it from being turned to an integer
         #Note: recommended values: yaw: +-5 pitch +-2, add 1.8 for normalization         
     
     def _detect_blink(self, landmarks):
