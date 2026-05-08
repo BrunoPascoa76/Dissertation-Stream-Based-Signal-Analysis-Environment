@@ -22,8 +22,6 @@ class HRVVisualization(BaseVisualizer):
     def process_data(self, json_results):
         now_ms = int(time.time() * 1000)
         
-        print(json_results)
-        
         if not json_results:
             return None, None
 

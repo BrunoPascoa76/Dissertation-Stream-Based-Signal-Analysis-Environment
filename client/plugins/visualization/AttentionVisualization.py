@@ -55,18 +55,21 @@ class AttentionVisualization(CompositeVisualizer):
         active_sensors=[]
 
         #get attention "scores" from each sensor
-        if "hrv" in json_results:
+        if "hrv" in json_results and len(json_results["hrv"])>0:
             attention_scores.append(self._get_hrv_score(json_results["hrv"]))
             total_weight+=self.attention_weights["hrv"]
             active_sensors.append("hrv")
-        if "face" in json_results:
+        if "face" in json_results and len(json_results["face"])>0:
             attention_scores.append(self._get_face_score(json_results["face"]))
             total_weight+=self.attention_weights["face"]
             active_sensors.append("face")
-        if "keyboard" in json_results:
+        if "keyboard" in json_results and len(json_results["keyboard"])>0:
             attention_scores.append(self._get_keyboard_score(json_results["keyboard"]))
             total_weight+=self.attention_weights["keyboard"]
             active_sensors.append("keyboard")
+            
+        print(active_sensors)
+        print(attention_scores)
                     
         #calculate final attention
         if not attention_scores or total_weight == 0:
