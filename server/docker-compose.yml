@@ -143,3 +143,22 @@ services:
       done;
       echo "Done.";
       '
+
+  testing:
+    image: python:latest
+    container_name: testing
+    working_dir: /tests
+    volumes:
+      - ./tests:/tests:Z
+    depends_on:
+      kafka-connect:
+        condition: service_healthy
+      influxdb:
+        condition: service_healthy
+    environment:
+      - INFLUXDB_PORT=8086
+      - MQTT_PORT=1883
+      - INFLUXDB_DB=mqtt
+    command: >
+      sh -c "pip install --no-cache-dir -r requirements.txt && 
+             python main.py"

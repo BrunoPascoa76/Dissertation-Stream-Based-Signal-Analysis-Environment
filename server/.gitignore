@@ -2,4 +2,4 @@ kafka/*
 mosquitto-central/*
 zookeeper/*
 influxdb/*
-api/__pycache__/*
+*/__pycache__/*
