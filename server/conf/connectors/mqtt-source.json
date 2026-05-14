@@ -8,6 +8,9 @@
         "mqtt.qos": "1",
         "value.converter": "org.apache.kafka.connect.converters.ByteArrayConverter",
         "confluent.topic.bootstrap.servers": "kafka:9092",
-        "confluent.topic.replication.factor": 1
+        "confluent.topic.replication.factor": 1,
+
+        "errors.tolerance": "all",
+        "errors.log.enable": true
     }
 }

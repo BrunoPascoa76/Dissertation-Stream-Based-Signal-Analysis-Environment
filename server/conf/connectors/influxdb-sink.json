@@ -16,12 +16,15 @@
     "transforms.ForceFloat.spec": "value_f$:float64",
 
     "influxdb.url": "http://influxdb:8086",
-    "influxdb.db": "sensor_data",
+    "influxdb.db": "mqtt",
     "influxdb.retention.policy": "autogen",
     
     "influxdb.measurement.field": "measurement",
     "influxdb.time.fieldname": "timestamp",
     "influxdb.timeunit": "MILLISECONDS",
-    "influxdb.tags": "uuid"
+    "influxdb.tags": "uuid",
+
+    "errors.tolerance": "all",
+    "errors.log.enable": true
   }
 }
