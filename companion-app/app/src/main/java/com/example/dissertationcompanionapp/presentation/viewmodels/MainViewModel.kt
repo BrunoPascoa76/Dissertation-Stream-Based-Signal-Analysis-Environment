@@ -56,7 +56,7 @@ class MainViewModel(
     //Approximate RMSSD from BPM using 3% of RR interval
     private fun estimateRMSSDFromBpm(bpm: Int): Double {
         val rr = 60000.0 / bpm
-        return rr * 0.03
+        return rr
     }
 
     fun saveAddress(encoded: String) {

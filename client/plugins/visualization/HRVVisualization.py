@@ -5,7 +5,7 @@ from plugins.visualization.BaseVisualizer import BaseVisualizer
 
 class HRVVisualization(BaseVisualizer):
     def __init__(self):
-        super().__init__("hrv",title="Heart Rate Variability",x_label="Seconds ago",y_label="HRV")
+        super().__init__("hrv",title="Heart Rate",x_label="Seconds ago",y_label="BPM")
     
     def get_query_params(self):
         now_ms = int(time.time() * 1000)
@@ -14,7 +14,7 @@ class HRVVisualization(BaseVisualizer):
         return {
             "uuid": self.uuid,      # Identifies the participant
             "agg": None,                   
-            "field": "value_f,timestamp",      # The field we are counting
+            "field": "bpm,timestamp",      # The field we are counting
             "start": start_ms,        # Start timestamp
             "end": now_ms,             # End timestamp
         }
@@ -25,7 +25,7 @@ class HRVVisualization(BaseVisualizer):
         if not json_results:
             return None, None
 
-        y = [d.get('value_f') for d in json_results]
+        y = [d.get('bpm',0.0) for d in json_results]
         
         x = list(range(-len(y) + 1, 1))
         

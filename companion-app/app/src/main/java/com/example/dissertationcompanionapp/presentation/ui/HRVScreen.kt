@@ -40,11 +40,15 @@ fun HRVScreen(viewModel: MainViewModel,mqttViewModel: MQTTViewModel) {
     val bpm by viewModel.bpm.collectAsState()
 
     //publish hrv when it changes
-    LaunchedEffect(hrv) {
-        hrv?.let { value ->
-            val timestamp = System.currentTimeMillis()
-            mqttViewModel.publishHrvData(value, timestamp)
-        }
+    LaunchedEffect(hrv,bpm) {
+        val timestamp = System.currentTimeMillis()
+
+
+        mqttViewModel.publishHrvData(
+            bpm = bpm,
+            hrv = hrv?:0.000001,
+            timestamp = timestamp
+        )
     }
 
     Column(
@@ -88,7 +92,7 @@ fun HRVScreen(viewModel: MainViewModel,mqttViewModel: MQTTViewModel) {
                         modifier = Modifier.padding(8.dp),
                         horizontalAlignment = Alignment.CenterHorizontally
                     ) {
-                        Text("HRV", style = MaterialTheme.typography.titleMedium)
+                        Text("RR Interval", style = MaterialTheme.typography.titleMedium)
                         Text(
                             hrv?.let { String.format("%.1f", it) } ?: "--",
                             style = MaterialTheme.typography.bodyLarge

@@ -12,7 +12,7 @@ packages = ["plugins", "plugins.sensors", "plugins.core","plugins.visualization"
 
 [project.entry-points."plugins.sensors"]
 face = "plugins.sensors.FaceReader:FaceReader"
-hrv = "plugins.sensors.HRVReader:HRVReader"
+bpm = "plugins.sensors.HRVReader:HRVReader"
 keyboard = "plugins.sensors.KeyboardReader:KeyboardReader"
 
 [project.entry-points."plugins.visualizations"]

@@ -119,14 +119,15 @@ class MQTTViewModel(
         disconnect()
     }
 
-    fun publishHrvData(hrv: Double, timestamp: Long) {
+    fun publishHrvData(hrv: Double, bpm: Float, timestamp: Long) {
         if (!_isConnected.value || !_sessionStarted.value) return
 
         val json = JSONObject().apply {
             put("measurement","sensors/hrv")
             put("uuid", uuidRepository.getUUID()?:return)
             put("timestamp", timestamp)
-            put("value_f", hrv.toFloat()+0.00001) //small enough to not affect, but prevents being turned to an int
+            put("bpm",bpm)
+            put("rr_interval", hrv.toFloat()+0.00001) //small enough to not affect, but prevents being turned to an int
         }
 
         mqttClient?.publishWith()
