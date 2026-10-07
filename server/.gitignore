@@ -3,4 +3,4 @@ mosquitto-central/*
 zookeeper/*
 influxdb/*
 */__pycache__/*
-grafana/*
+grafana/data/*
